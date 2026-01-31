@@ -133,22 +133,28 @@ function Connection({
     return { points: pts, arrowAngle: Math.atan2(tangent.y, tangent.x) };
   }, [start[0], start[1], start[2], end[0], end[1], end[2]]);
 
-  const geometry = useMemo(() => {
+  const lineObj = useMemo(() => {
+    let geometry: THREE.BufferGeometry;
     if (dashed) {
       const dashedPts: THREE.Vector3[] = [];
       for (let i = 0; i < points.length; i++) {
         if (Math.floor(i / 4) % 2 === 0) dashedPts.push(points[i]);
       }
-      return new THREE.BufferGeometry().setFromPoints(dashedPts);
+      geometry = new THREE.BufferGeometry().setFromPoints(dashedPts);
+    } else {
+      geometry = new THREE.BufferGeometry().setFromPoints(points);
     }
-    return new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({
+      color: "#d4a855",
+      transparent: true,
+      opacity: dashed ? 0.18 : 0.12
+    });
+    return new THREE.Line(geometry, material);
   }, [points, dashed]);
 
   return (
     <group>
-      <line geometry={geometry}>
-        <lineBasicMaterial color="#d4a855" transparent opacity={dashed ? 0.18 : 0.12} />
-      </line>
+      <primitive object={lineObj} />
       <mesh position={end} rotation={[0, 0, arrowAngle - Math.PI / 2]}>
         <coneGeometry args={[6, 12, 3]} />
         <meshBasicMaterial color="#d4a855" transparent opacity={0.18} wireframe={dashed} />
