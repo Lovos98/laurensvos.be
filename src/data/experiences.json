@@ -1,0 +1,513 @@
+{
+  "rowLabels": [
+    "Company",
+    "Role",
+    "Project",
+    "Personal"
+  ],
+  "skillCategories": {
+    "design": {
+      "name": "Architecture/Design",
+      "bg": "bg-violet-400/20",
+      "border": "border-violet-400/40",
+      "text": "text-violet-600 dark:text-violet-400"
+    },
+    "backend": {
+      "name": "Backend",
+      "bg": "bg-amber-400/20",
+      "border": "border-amber-400/40",
+      "text": "text-amber-600 dark:text-amber-400"
+    },
+    "frontend": {
+      "name": "Frontend",
+      "bg": "bg-fuchsia-400/20",
+      "border": "border-fuchsia-400/40",
+      "text": "text-fuchsia-600 dark:text-fuchsia-400"
+    },
+    "testing": {
+      "name": "Testing",
+      "bg": "bg-teal-400/20",
+      "border": "border-teal-400/40",
+      "text": "text-teal-600 dark:text-teal-400"
+    },
+    "devops": {
+      "name": "DevOps",
+      "bg": "bg-red-400/20",
+      "border": "border-red-400/40",
+      "text": "text-red-600 dark:text-red-400"
+    },
+    "domain": {
+      "name": "Domain",
+      "bg": "bg-lime-400/20",
+      "border": "border-lime-400/40",
+      "text": "text-lime-600 dark:text-lime-400"
+    },
+    "workflow": {
+      "name": "Workflow",
+      "bg": "bg-sky-400/20",
+      "border": "border-sky-400/40",
+      "text": "text-sky-600 dark:text-sky-400"
+    },
+    "creative": {
+      "name": "Creative",
+      "bg": "bg-pink-400/20",
+      "border": "border-pink-400/40",
+      "text": "text-pink-600 dark:text-pink-400"
+    },
+    "business": {
+      "name": "Business",
+      "bg": "bg-yellow-400/20",
+      "border": "border-yellow-400/40",
+      "text": "text-yellow-600 dark:text-yellow-400"
+    },
+    "education": {
+      "name": "Education",
+      "bg": "bg-indigo-400/20",
+      "border": "border-indigo-400/40",
+      "text": "text-indigo-600 dark:text-indigo-400"
+    },
+    "technical": {
+      "name": "Technical",
+      "bg": "bg-slate-400/20",
+      "border": "border-slate-400/40",
+      "text": "text-slate-600 dark:text-slate-400"
+    },
+    "ai": {
+      "name": "AI/ML",
+      "bg": "bg-cyan-400/20",
+      "border": "border-cyan-400/40",
+      "text": "text-cyan-600 dark:text-cyan-400"
+    },
+    "embedded": {
+      "name": "Embedded",
+      "bg": "bg-orange-400/20",
+      "border": "border-orange-400/40",
+      "text": "text-orange-600 dark:text-orange-400"
+    },
+    "software": {
+      "name": "Software",
+      "bg": "bg-emerald-400/20",
+      "border": "border-emerald-400/40",
+      "text": "text-emerald-600 dark:text-emerald-400"
+    },
+    "thesis": {
+      "name": "Master Thesis",
+      "bg": "bg-purple-400/20",
+      "border": "border-purple-400/40",
+      "text": "text-purple-600 dark:text-purple-400"
+    },
+    "physics": {
+      "name": "Physics",
+      "bg": "bg-blue-400/20",
+      "border": "border-blue-400/40",
+      "text": "text-blue-600 dark:text-blue-400"
+    },
+    "math": {
+      "name": "Mathematics",
+      "bg": "bg-rose-400/20",
+      "border": "border-rose-400/40",
+      "text": "text-rose-600 dark:text-rose-400"
+    },
+    "electronics": {
+      "name": "Electronics",
+      "bg": "bg-amber-400/20",
+      "border": "border-amber-400/40",
+      "text": "text-amber-600 dark:text-amber-400"
+    },
+    "materials": {
+      "name": "Materials",
+      "bg": "bg-stone-400/20",
+      "border": "border-stone-400/40",
+      "text": "text-stone-600 dark:text-stone-400"
+    }
+  },
+  "experiences": [
+    {
+      "id": "kuleuven",
+      "company": "KU Leuven",
+      "role": "Campus Geel",
+      "description": "KU Leuven is one of the oldest and most renowned universities in Europe, located in Leuven, Belgium.",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2016,
+      "startMonth": 9,
+      "endYear": 2021,
+      "endMonth": 6,
+      "category": "university",
+      "color": "gold",
+      "link": "https://www.kuleuven.be/campussen/campus-geel",
+      "row": 0
+    },
+    {
+      "id": "kuleuven-role",
+      "company": "Student",
+      "role": "",
+      "description": "",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2016,
+      "startMonth": 9,
+      "endYear": 2021,
+      "endMonth": 6,
+      "category": "role",
+      "color": "white",
+      "row": 1
+    },
+    {
+      "id": "kuleuven-bachelor",
+      "company": "Bachelor Industrial Sciences",
+      "role": "",
+      "description": "Bachelor's degree in Industrial Sciences with Electronics-ICT specialization. Foundation in electronics, programming, and engineering principles.",
+      "badges": [
+        { "name": "Electronics", "category": "electronics" },
+        { "name": "Physics", "category": "physics" },
+        { "name": "Software", "category": "software" }
+      ],
+      "skills": {
+        "physics": ["Physics", "Dynamics", "Optics and Waves", "Mechanics", "Thermodynamics", "Fluid Dynamics", "Strength of Materials"],
+        "math": ["Calculus", "Linear Algebra", "Statistics", "Mathematical Models"],
+        "electronics": ["Electricity", "Electronics", "Digital Design", "Analog Circuits", "Transistors", "Sensors & Actuators"],
+        "software": ["C", "C++", "Java", "Data Structures", "Algorithms", "OOP", "Operating Systems"],
+        "materials": ["Chemistry", "Material Science"]
+      },
+      "startYear": 2016,
+      "startMonth": 9,
+      "endYear": 2020,
+      "endMonth": 6,
+      "category": "project",
+      "color": "white",
+      "row": 2
+    },
+    {
+      "id": "kuleuven-master",
+      "company": "Master Industrial Sciences",
+      "role": "",
+      "description": "Master's degree in Industrial Sciences with Electronics-ICT specialization. Advanced embedded systems, machine learning, and digital signal processing.",
+      "badges": [
+        { "name": "AI/ML", "category": "ai" },
+        { "name": "Embedded Systems", "category": "embedded" },
+        { "name": "Digital Signal Processing", "category": "software" }
+      ],
+      "skills": {
+        "ai": ["Machine Learning", "Neural Networks", "Deep Learning", "Big Data", "PageRank", "Apriori", "Support Vector Machines"],
+        "embedded": ["FPGA", "VHDL", "Embedded Systems", "Microcontrollers", "STM32", "RTOS", "Digital Logic", "Digital Electronics", "Electronic Interfaces"],
+        "software": ["C", "C++", "Python", "Assembly x86", "Digital Signal Processing", "Database Design", "Finite State Machines"],
+        "thesis": ["CubeSat", "CAN bus", "SpaceWire", "C++"]
+      },
+      "startYear": 2020,
+      "startMonth": 9,
+      "endYear": 2021,
+      "endMonth": 6,
+      "category": "project",
+      "color": "white",
+      "row": 2
+    },
+    {
+      "id": "lovosmedia",
+      "company": "Lovos Media",
+      "role": "- Creative Media Agency",
+      "description": "",
+      "badges": [
+        { "name": "Photography", "category": "creative" },
+        { "name": "Sales", "category": "business" },
+        { "name": "Media Server", "category": "technical" }
+      ],
+      "skills": {
+        "creative": ["Photography", "Videography", "Photo Editing", "Video Editing", "Storytelling", "Color Grading"],
+        "business": ["Client Outreach", "Branding", "Social Media Marketing", "Networking", "Sales"],
+        "technical": ["Media Server running on ZFS", "Camera Gear", "Website Development", "Adobe Suite"]
+      },
+      "startYear": 2018,
+      "startMonth": 1,
+      "endYear": 2025,
+      "endMonth": 5,
+      "category": "personal",
+      "color": "gold",
+      "link": "https://lovosmedia.com",
+      "row": 3
+    },
+    {
+      "id": "neways",
+      "company": "Neways Electronics",
+      "role": "",
+      "description": "Neways Electronics is a leading European electronics manufacturing services provider, specializing in custom-made electronic components and systems.",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2021,
+      "startMonth": 11,
+      "endYear": 2022,
+      "endMonth": 7,
+      "category": "company",
+      "color": "gold",
+      "link": "https://newayselectronics.com/nl/",
+      "row": 0
+    },
+    {
+      "id": "neways-role",
+      "company": "Test Engineer",
+      "role": "",
+      "description": "",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2021,
+      "startMonth": 11,
+      "endYear": 2022,
+      "endMonth": 7,
+      "category": "role",
+      "color": "white",
+      "row": 1
+    },
+    {
+      "id": "neways-test",
+      "company": "ASML Cabinet Testing",
+      "role": "",
+      "description": "Developed automated test solutions for electronic manufacturing systems. Created test scripts and maintained test infrastructure for quality assurance in PCB production.",
+      "badges": [
+        { "name": "LabVIEW", "category": "backend" },
+        { "name": "Soldering", "category": "workflow" },
+        { "name": "Cleanroom", "category": "workflow" }
+      ],
+      "skills": {
+        "backend": ["Excel", "LabVIEW"],
+        "domain": ["ASML Cabinets", "Test Engineering Team"],
+        "workflow": ["Problem Solving", "IPC Soldering", "Reading ASML Datasheets", "PLC Programming", "Cleanroom Environment"]
+      },
+      "startYear": 2021,
+      "startMonth": 11,
+      "endYear": 2022,
+      "endMonth": 7,
+      "category": "project",
+      "color": "white",
+      "row": 2
+    },
+    {
+      "id": "tmc",
+      "company": "TMC",
+      "role": "",
+      "description": "TMC is a high-tech consultancy company with a unique employeneurship model, combining employment security with entrepreneurial freedom.",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2022,
+      "startMonth": 8,
+      "endYear": 2023,
+      "endMonth": 8,
+      "category": "company",
+      "color": "gold",
+      "link": "https://www.themembercompany.com/nl/",
+      "row": 0
+    },
+    {
+      "id": "tmc-role",
+      "company": "Junior Software Engineer",
+      "role": "",
+      "description": "",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2022,
+      "startMonth": 8,
+      "endYear": 2023,
+      "endMonth": 8,
+      "category": "role",
+      "color": "white",
+      "row": 1
+    },
+    {
+      "id": "nsx",
+      "company": "NSX Tooling",
+      "role": "",
+      "description": "Onboarding on the Normalized Systems (NSX) development platform. NSX is a code generation framework based on Normalized Systems Theory, enabling continuous software regeneration and rejuvenation.",
+      "badges": [
+        { "name": "NSX Platform", "category": "backend" },
+        { "name": "Code Generation", "category": "design" },
+        { "name": "Java", "category": "backend" }
+      ],
+      "skills": {
+        "design": ["Normalized Systems Theory", "Software Evolvability", "Modular Design", "Pattern-based Development"],
+        "backend": ["Java", "NSX Platform", "Code Generation"],
+        "workflow": ["Onboarding", "Knowledge Transfer"]
+      },
+      "startYear": 2022,
+      "startMonth": 8,
+      "endYear": 2022,
+      "endMonth": 8,
+      "category": "project",
+      "color": "white",
+      "link": "https://normalizedsystems.org",
+      "row": 2
+    },
+    {
+      "id": "belastingdienst",
+      "company": "NL Belastingdienst",
+      "role": "",
+      "description": "Development of government tax administration systems. Worked on mission-critical applications handling tax processing for Dutch citizens.",
+      "badges": [
+        { "name": "Java EE", "category": "backend" },
+        { "name": "Clean Code", "category": "design" },
+        { "name": "Microservices", "category": "design" }
+      ],
+      "skills": {
+        "design": ["NSX Layered Architecture", "Microservices", "Clean Code", "SOAP API"],
+        "backend": ["NSX Tooling", "Java EE"],
+        "frontend": ["Knockout"],
+        "testing": ["Playwright", "Cucumber"],
+        "devops": ["Jenkins", "Git", "Internal Tooling", "SonarQube"],
+        "domain": ["Tax Systems", "Government IT", "Legacy Integration", "Code Generation"],
+        "workflow": ["SAFe", "Remote Work"]
+      },
+      "startYear": 2022,
+      "startMonth": 9,
+      "endYear": 2023,
+      "endMonth": 8,
+      "category": "project",
+      "color": "white",
+      "link": "https://www.belastingdienst.nl/wps/wcm/connect/nl/home/home",
+      "row": 2
+    },
+    {
+      "id": "sioux",
+      "company": "Sioux Technologies",
+      "role": "",
+      "description": "Sioux Technologies is a leading technology partner in the Eindhoven Brainport region, delivering high-tech software and systems solutions.",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2024,
+      "startMonth": 11,
+      "endYear": null,
+      "endMonth": null,
+      "category": "company",
+      "color": "gold",
+      "link": "https://www.siouxtechnologies.com/en/",
+      "row": 0
+    },
+    {
+      "id": "sioux-role-medior",
+      "company": "Medior Software Engineer",
+      "role": "",
+      "description": "",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2024,
+      "startMonth": 11,
+      "endYear": 2026,
+      "endMonth": 1,
+      "category": "role",
+      "color": "white",
+      "row": 1
+    },
+    {
+      "id": "sioux-role-senior",
+      "company": "Senior Software Engineer",
+      "role": "",
+      "description": "",
+      "badges": [],
+      "skillCategories": [],
+      "startYear": 2026,
+      "startMonth": 2,
+      "endYear": null,
+      "endMonth": null,
+      "category": "role",
+      "color": "white",
+      "row": 1
+    },
+    {
+      "id": "sioux-internal",
+      "company": "Internal Project",
+      "role": "",
+      "description": "Internal tooling project at Sioux Technologies. React frontend connected via REST API to Entity Framework backend, containerized with Docker.",
+      "badges": [
+        { "name": "React", "category": "frontend" },
+        { "name": "Docker", "category": "devops" },
+        { "name": "Playwright", "category": "testing" }
+      ],
+      "skills": {
+        "design": ["REST API", "Layered Architecture"],
+        "backend": ["C#", ".NET", "Entity Framework", "PostgreSQL"],
+        "frontend": ["React", "Vite", "Tailwind", "TypeScript"],
+        "testing": ["Vitest", "Playwright"],
+        "devops": ["Jenkins", "Docker", "Git"],
+        "domain": ["HR Business Processes"],
+        "workflow": ["Agile", "Small Team"]
+      },
+      "startYear": 2024,
+      "startMonth": 11,
+      "endYear": 2025,
+      "endMonth": 5,
+      "category": "project",
+      "color": "white",
+      "row": 2
+    },
+    {
+      "id": "asml",
+      "company": "ASML YieldStar",
+      "role": "",
+      "description": "Software development for semiconductor lithography systems at ASML via Sioux Technologies. Working on cutting-edge technology that enables the production of advanced microchips.",
+      "badges": [
+        { "name": "SAFe", "category": "workflow" },
+        { "name": ".NET", "category": "backend" },
+        { "name": "Legacy Systems", "category": "design" }
+      ],
+      "skills": {
+        "design": ["Monolith Navigation", "Legacy Systems"],
+        "backend": ["C#", ".NET", "WPF", "MVVM"],
+        "frontend": ["WPF", "XAML"],
+        "testing": ["RobotFramework", "Moq"],
+        "devops": ["Git", "Bitbucket", "SonarQube"],
+        "domain": ["Semicon", "Overlay", "Focus", "Reporting"],
+        "workflow": ["SAFe", "Cross-domain Collaboration"]
+      },
+      "startYear": 2025,
+      "startMonth": 6,
+      "endYear": null,
+      "endMonth": null,
+      "category": "project",
+      "color": "white",
+      "link": "https://www.asml.com/en",
+      "row": 2
+    },
+    {
+      "id": "rofox",
+      "company": "Rofox",
+      "role": "- Tech Startup",
+      "description": "",
+      "badges": [
+        { "name": "Startup", "category": "business" },
+        { "name": "Full-stack", "category": "backend" },
+        { "name": "AI", "category": "backend" }
+      ],
+      "skills": {
+        "business": ["Entrepreneurship", "Product Development", "Business Strategy", "Pitching"],
+        "backend": ["Software Architecture", "Full-stack Development", "Cloud Infrastructure"]
+      },
+      "startYear": 2026,
+      "startMonth": 4,
+      "endYear": null,
+      "endMonth": null,
+      "category": "personal",
+      "color": "gold",
+      "link": "https://rofox.be",
+      "row": 3
+    }
+  ],
+  "colors": {
+    "gold": {
+      "label": "Company",
+      "bg": "bg-accent/15",
+      "bgHover": "hover:bg-accent/25",
+      "border": "border-accent",
+      "borderSelected": "border-accent",
+      "ring": "ring-accent/40",
+      "dot": "bg-accent",
+      "text": "text-accent"
+    },
+    "white": {
+      "label": "Project",
+      "bg": "bg-white dark:bg-white/5",
+      "bgHover": "hover:bg-neutral-50 dark:hover:bg-white/10",
+      "border": "border-neutral-800 dark:border-white/30",
+      "borderSelected": "border-black dark:border-white/50",
+      "ring": "ring-neutral-800/40 dark:ring-white/20",
+      "dot": "bg-neutral-800 dark:bg-white/60",
+      "text": "text-text-secondary"
+    }
+  }
+}
