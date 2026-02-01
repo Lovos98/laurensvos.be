@@ -1,0 +1,128 @@
+{
+  "name": "Observer",
+  "description": "Defines a one-to-many dependency so that when one object changes state, all dependents are notified.",
+  "nodes": [
+    {
+      "id": "node-0",
+      "name": "Subject",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": [
+        "+ attach(o: Observer): void",
+        "+ detach(o: Observer): void",
+        "+ notify(): void"
+      ],
+      "properties": [],
+      "x": 5,
+      "y": 2
+    },
+    {
+      "id": "node-1",
+      "name": "ConcreteSubject",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ getState(): State",
+        "+ setState(s: State): void"
+      ],
+      "properties": [
+        "- state: State",
+        "- observers: Observer[]"
+      ],
+      "x": 5,
+      "y": 14
+    },
+    {
+      "id": "node-2",
+      "name": "Observer",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": [
+        "+ update(): void"
+      ],
+      "properties": [],
+      "x": 27,
+      "y": 3
+    },
+    {
+      "id": "node-3",
+      "name": "ConcreteObserverA",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ update(): void"
+      ],
+      "properties": [
+        "- state: State"
+      ],
+      "x": 22,
+      "y": 15
+    },
+    {
+      "id": "node-4",
+      "name": "ConcreteObserverB",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ update(): void"
+      ],
+      "properties": [
+        "- state: State"
+      ],
+      "x": 31,
+      "y": 15
+    }
+  ],
+  "connections": [
+    {
+      "from": "node-1",
+      "to": "node-0",
+      "type": "implements"
+    },
+    {
+      "from": "node-3",
+      "to": "node-2",
+      "type": "implements"
+    },
+    {
+      "from": "node-4",
+      "to": "node-2",
+      "type": "implements"
+    },
+    {
+      "from": "node-0",
+      "to": "node-2",
+      "type": "association",
+      "label": "notifies"
+    }
+  ],
+  "layouts": {
+    "1": [
+      {
+        "id": "node-0",
+        "x": 5,
+        "y": 2
+      },
+      {
+        "id": "node-1",
+        "x": 5,
+        "y": 14
+      },
+      {
+        "id": "node-2",
+        "x": 27,
+        "y": 3
+      },
+      {
+        "id": "node-3",
+        "x": 22,
+        "y": 15
+      },
+      {
+        "id": "node-4",
+        "x": 31,
+        "y": 15
+      }
+    ]
+  }
+}

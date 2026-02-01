@@ -1,0 +1,63 @@
+{
+  "name": "Decorator",
+  "description": "Attaches additional responsibilities to an object dynamically, providing a flexible alternative to subclassing.",
+  "nodes": [
+    {
+      "id": "node-0",
+      "name": "Component",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": ["+ operation(): void"],
+      "properties": [],
+      "x": 14,
+      "y": 3
+    },
+    {
+      "id": "node-1",
+      "name": "ConcreteComponent",
+      "type": "class",
+      "stereotype": null,
+      "methods": ["+ operation(): void"],
+      "properties": [],
+      "x": 3,
+      "y": 15
+    },
+    {
+      "id": "node-2",
+      "name": "Decorator",
+      "type": "abstract",
+      "stereotype": "«abstract»",
+      "methods": ["+ operation(): void"],
+      "properties": ["- component: Component"],
+      "x": 25,
+      "y": 15
+    },
+    {
+      "id": "node-3",
+      "name": "ConcreteDecoratorA",
+      "type": "class",
+      "stereotype": null,
+      "methods": ["+ operation(): void", "+ addedBehavior(): void"],
+      "properties": [],
+      "x": 18,
+      "y": 28
+    },
+    {
+      "id": "node-4",
+      "name": "ConcreteDecoratorB",
+      "type": "class",
+      "stereotype": null,
+      "methods": ["+ operation(): void"],
+      "properties": ["- addedState: State"],
+      "x": 32,
+      "y": 28
+    }
+  ],
+  "connections": [
+    { "from": "node-1", "to": "node-0", "type": "implements" },
+    { "from": "node-2", "to": "node-0", "type": "implements" },
+    { "from": "node-3", "to": "node-2", "type": "extends" },
+    { "from": "node-4", "to": "node-2", "type": "extends" }
+  ],
+  "layouts": {}
+}

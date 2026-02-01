@@ -1,0 +1,52 @@
+{
+  "name": "Strategy",
+  "description": "Defines a family of algorithms, encapsulates each one, and makes them interchangeable.",
+  "nodes": [
+    {
+      "id": "node-0",
+      "name": "Context",
+      "type": "class",
+      "stereotype": null,
+      "methods": ["+ setStrategy(s: Strategy): void", "+ execute(): void"],
+      "properties": ["- strategy: Strategy"],
+      "x": 3,
+      "y": 8
+    },
+    {
+      "id": "node-1",
+      "name": "Strategy",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": ["+ algorithm(): Result"],
+      "properties": [],
+      "x": 20,
+      "y": 3
+    },
+    {
+      "id": "node-2",
+      "name": "ConcreteStrategyA",
+      "type": "class",
+      "stereotype": null,
+      "methods": ["+ algorithm(): Result"],
+      "properties": [],
+      "x": 20,
+      "y": 13
+    },
+    {
+      "id": "node-3",
+      "name": "ConcreteStrategyB",
+      "type": "class",
+      "stereotype": null,
+      "methods": ["+ algorithm(): Result"],
+      "properties": [],
+      "x": 20,
+      "y": 22
+    }
+  ],
+  "connections": [
+    { "from": "node-2", "to": "node-1", "type": "implements" },
+    { "from": "node-3", "to": "node-1", "type": "implements" },
+    { "from": "node-0", "to": "node-1", "type": "association" }
+  ],
+  "layouts": {}
+}

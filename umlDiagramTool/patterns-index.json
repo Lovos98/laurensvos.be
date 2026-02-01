@@ -1,0 +1,3 @@
+{
+  "patterns": ["factory", "decorator", "builder", "observer", "strategy", "combined"]
+}

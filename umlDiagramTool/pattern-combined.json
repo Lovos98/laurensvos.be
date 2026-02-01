@@ -1,0 +1,387 @@
+{
+  "name": "Combined Patterns - Notification System",
+  "description": "A real-world notification system demonstrating how Factory, Decorator, Observer, and Strategy patterns interconnect.",
+  "nodes": [
+    {
+      "id": "node-0",
+      "name": "NotifierFactory",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ createNotifier(type: string): Notifier"
+      ],
+      "properties": [],
+      "x": 14,
+      "y": -10
+    },
+    {
+      "id": "node-1",
+      "name": "Notifier",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": [
+        "+ send(msg: Message): void",
+        "+ attach(o: NotifyObserver): void",
+        "+ detach(o: NotifyObserver): void"
+      ],
+      "properties": [],
+      "x": 15,
+      "y": 2
+    },
+    {
+      "id": "node-2",
+      "name": "EmailNotifier",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ send(msg: Message): void"
+      ],
+      "properties": [
+        "- smtpClient: SmtpClient"
+      ],
+      "x": 6,
+      "y": 14
+    },
+    {
+      "id": "node-3",
+      "name": "SmsNotifier",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ send(msg: Message): void"
+      ],
+      "properties": [
+        "- smsGateway: SmsGateway"
+      ],
+      "x": 17,
+      "y": 14
+    },
+    {
+      "id": "node-4",
+      "name": "PushNotifier",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ send(msg: Message): void"
+      ],
+      "properties": [
+        "- pushService: PushService"
+      ],
+      "x": 28,
+      "y": 14
+    },
+    {
+      "id": "node-5",
+      "name": "NotifierDecorator",
+      "type": "abstract",
+      "stereotype": "«abstract»",
+      "methods": [
+        "+ send(msg: Message): void"
+      ],
+      "properties": [
+        "# wrapped: Notifier"
+      ],
+      "x": 40,
+      "y": 2
+    },
+    {
+      "id": "node-6",
+      "name": "LoggingDecorator",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ send(msg: Message): void"
+      ],
+      "properties": [
+        "- logger: Logger"
+      ],
+      "x": 52,
+      "y": 2
+    },
+    {
+      "id": "node-7",
+      "name": "RetryDecorator",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ send(msg: Message): void"
+      ],
+      "properties": [
+        "- maxRetries: int",
+        "- strategy: RetryStrategy"
+      ],
+      "x": 40,
+      "y": 10
+    },
+    {
+      "id": "node-8",
+      "name": "NotifyObserver",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": [
+        "+ onSent(msg: Message): void",
+        "+ onFailed(msg: Message, err: Error): void"
+      ],
+      "properties": [],
+      "x": -19,
+      "y": 11
+    },
+    {
+      "id": "node-9",
+      "name": "AnalyticsObserver",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ onSent(msg: Message): void",
+        "+ onFailed(msg: Message, err: Error): void"
+      ],
+      "properties": [
+        "- analyticsService: Analytics"
+      ],
+      "x": -28,
+      "y": 20
+    },
+    {
+      "id": "node-10",
+      "name": "AuditLogObserver",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ onSent(msg: Message): void",
+        "+ onFailed(msg: Message, err: Error): void"
+      ],
+      "properties": [
+        "- auditLog: AuditLog"
+      ],
+      "x": -10,
+      "y": 20
+    },
+    {
+      "id": "node-11",
+      "name": "RetryStrategy",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": [
+        "+ shouldRetry(attempt: int): boolean",
+        "+ getDelay(attempt: int): int"
+      ],
+      "properties": [],
+      "x": 40,
+      "y": 17
+    },
+    {
+      "id": "node-12",
+      "name": "ExponentialBackoff",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ shouldRetry(attempt: int): boolean",
+        "+ getDelay(attempt: int): int"
+      ],
+      "properties": [
+        "- baseDelay: int",
+        "- maxDelay: int"
+      ],
+      "x": 32,
+      "y": 25
+    },
+    {
+      "id": "node-13",
+      "name": "LinearBackoff",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ shouldRetry(attempt: int): boolean",
+        "+ getDelay(attempt: int): int"
+      ],
+      "properties": [
+        "- delayIncrement: int"
+      ],
+      "x": 47,
+      "y": 25
+    },
+    {
+      "id": "node-14",
+      "name": "NotificationService",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ notify(user: User, msg: Message): void",
+        "+ setNotifier(n: Notifier): void"
+      ],
+      "properties": [
+        "- notifier: Notifier",
+        "- factory: NotifierFactory"
+      ],
+      "x": -6,
+      "y": -11
+    }
+  ],
+  "connections": [
+    {
+      "from": "node-0",
+      "to": "node-1",
+      "type": "dependency",
+      "label": "«creates»"
+    },
+    {
+      "from": "node-2",
+      "to": "node-1",
+      "type": "implements"
+    },
+    {
+      "from": "node-3",
+      "to": "node-1",
+      "type": "implements"
+    },
+    {
+      "from": "node-4",
+      "to": "node-1",
+      "type": "implements"
+    },
+    {
+      "from": "node-5",
+      "to": "node-1",
+      "type": "implements"
+    },
+    {
+      "from": "node-5",
+      "to": "node-1",
+      "type": "aggregation",
+      "label": "wraps"
+    },
+    {
+      "from": "node-6",
+      "to": "node-5",
+      "type": "extends"
+    },
+    {
+      "from": "node-7",
+      "to": "node-5",
+      "type": "extends"
+    },
+    {
+      "from": "node-1",
+      "to": "node-8",
+      "type": "association",
+      "label": "notifies"
+    },
+    {
+      "from": "node-9",
+      "to": "node-8",
+      "type": "implements"
+    },
+    {
+      "from": "node-10",
+      "to": "node-8",
+      "type": "implements"
+    },
+    {
+      "from": "node-7",
+      "to": "node-11",
+      "type": "association",
+      "label": "uses"
+    },
+    {
+      "from": "node-12",
+      "to": "node-11",
+      "type": "implements"
+    },
+    {
+      "from": "node-13",
+      "to": "node-11",
+      "type": "implements"
+    },
+    {
+      "from": "node-14",
+      "to": "node-0",
+      "type": "association",
+      "label": "uses"
+    },
+    {
+      "from": "node-14",
+      "to": "node-1",
+      "type": "association",
+      "label": "uses"
+    }
+  ],
+  "layouts": {
+    "1": [
+      {
+        "id": "node-0",
+        "x": 14,
+        "y": -10
+      },
+      {
+        "id": "node-1",
+        "x": 15,
+        "y": 2
+      },
+      {
+        "id": "node-2",
+        "x": 6,
+        "y": 14
+      },
+      {
+        "id": "node-3",
+        "x": 17,
+        "y": 14
+      },
+      {
+        "id": "node-4",
+        "x": 28,
+        "y": 14
+      },
+      {
+        "id": "node-5",
+        "x": 40,
+        "y": 2
+      },
+      {
+        "id": "node-6",
+        "x": 52,
+        "y": 2
+      },
+      {
+        "id": "node-7",
+        "x": 40,
+        "y": 10
+      },
+      {
+        "id": "node-8",
+        "x": -19,
+        "y": 11
+      },
+      {
+        "id": "node-9",
+        "x": -28,
+        "y": 20
+      },
+      {
+        "id": "node-10",
+        "x": -10,
+        "y": 20
+      },
+      {
+        "id": "node-11",
+        "x": 40,
+        "y": 17
+      },
+      {
+        "id": "node-12",
+        "x": 32,
+        "y": 25
+      },
+      {
+        "id": "node-13",
+        "x": 47,
+        "y": 25
+      },
+      {
+        "id": "node-14",
+        "x": -6,
+        "y": -11
+      }
+    ]
+  }
+}

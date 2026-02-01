@@ -1,0 +1,205 @@
+{
+  "name": "Factory Method",
+  "description": "Defines an interface for creating objects, letting subclasses decide which class to instantiate.",
+  "nodes": [
+    {
+      "id": "node-0",
+      "name": "Product",
+      "type": "interface",
+      "stereotype": "«interface»",
+      "methods": [
+        "+ use(): void"
+      ],
+      "properties": [],
+      "x": 6,
+      "y": 3
+    },
+    {
+      "id": "node-1",
+      "name": "ConcreteProductA",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ use(): void"
+      ],
+      "properties": [],
+      "x": 1,
+      "y": 15
+    },
+    {
+      "id": "node-2",
+      "name": "ConcreteProductB",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ use(): void"
+      ],
+      "properties": [],
+      "x": 11,
+      "y": 15
+    },
+    {
+      "id": "node-3",
+      "name": "Creator",
+      "type": "abstract",
+      "stereotype": "«abstract»",
+      "methods": [
+        "+ factoryMethod(): Product",
+        "+ operation(): void"
+      ],
+      "properties": [],
+      "x": 26,
+      "y": 2
+    },
+    {
+      "id": "node-4",
+      "name": "ConcreteCreatorA",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ factoryMethod(): Product"
+      ],
+      "properties": [],
+      "x": 20,
+      "y": 15
+    },
+    {
+      "id": "node-5",
+      "name": "ConcreteCreatorB",
+      "type": "class",
+      "stereotype": null,
+      "methods": [
+        "+ factoryMethod(): Product"
+      ],
+      "properties": [],
+      "x": 32,
+      "y": 15
+    }
+  ],
+  "connections": [
+    {
+      "from": "node-1",
+      "to": "node-0",
+      "type": "implements"
+    },
+    {
+      "from": "node-2",
+      "to": "node-0",
+      "type": "implements"
+    },
+    {
+      "from": "node-4",
+      "to": "node-3",
+      "type": "extends"
+    },
+    {
+      "from": "node-5",
+      "to": "node-3",
+      "type": "extends"
+    },
+    {
+      "from": "node-3",
+      "to": "node-0",
+      "type": "dependency",
+      "label": "«creates»"
+    }
+  ],
+  "layouts": {
+    "1": [
+      {
+        "id": "node-0",
+        "x": 6,
+        "y": 3
+      },
+      {
+        "id": "node-1",
+        "x": 1,
+        "y": 15
+      },
+      {
+        "id": "node-2",
+        "x": 11,
+        "y": 15
+      },
+      {
+        "id": "node-3",
+        "x": 26,
+        "y": 2
+      },
+      {
+        "id": "node-4",
+        "x": 20,
+        "y": 15
+      },
+      {
+        "id": "node-5",
+        "x": 32,
+        "y": 15
+      }
+    ],
+    "2": [
+      {
+        "id": "node-0",
+        "x": 12,
+        "y": 5
+      },
+      {
+        "id": "node-1",
+        "x": 12,
+        "y": -2
+      },
+      {
+        "id": "node-2",
+        "x": 12,
+        "y": 13
+      },
+      {
+        "id": "node-3",
+        "x": 23,
+        "y": 5
+      },
+      {
+        "id": "node-4",
+        "x": 23,
+        "y": -2
+      },
+      {
+        "id": "node-5",
+        "x": 23,
+        "y": 13
+      }
+    ],
+    "3": [
+      {
+        "id": "node-0",
+        "x": 48,
+        "y": 5
+      },
+      {
+        "id": "node-1",
+        "x": 42,
+        "y": 12
+      },
+      {
+        "id": "node-2",
+        "x": 55,
+        "y": 12
+      },
+      {
+        "id": "node-3",
+        "x": 46,
+        "y": -4
+      },
+      {
+        "id": "node-4",
+        "x": 59,
+        "y": 1
+      },
+      {
+        "id": "node-5",
+        "x": 59,
+        "y": -5
+      }
+    ]
+  }
+}
