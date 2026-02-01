@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useTheme } from "@/context/ThemeContext";
 import CareerTimeline from "@/components/CareerTimeline";
 
-const MeshBackground = dynamic(() => import("@/components/MeshBackground"), {
+const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), {
   ssr: false,
 });
 
@@ -65,8 +65,8 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Mesh background */}
-        <MeshBackground />
+        {/* Particle background */}
+        <ParticleBackground />
 
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">

@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle Background</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: transparent;
+      overflow: hidden;
+    }
+    canvas { display: block; }
+    #film-overlay {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <canvas id="film-overlay"></canvas>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // ========== CONFIGURATION ==========
+    const config = {
+      // Pattern to display - Combined Patterns (Notification System)
+      pattern: {
+        name: "Combined Patterns - Notification System",
+        nodes: [
+          { id: "node-0", name: "NotifierFactory", type: "class", stereotype: null, methods: ["+ createNotifier(type: string): Notifier"], properties: [], x: 14, y: -10 },
+          { id: "node-1", name: "Notifier", type: "interface", stereotype: "«interface»", methods: ["+ send(msg: Message): void", "+ attach(o: NotifyObserver): void", "+ detach(o: NotifyObserver): void"], properties: [], x: 15, y: 2 },
+          { id: "node-2", name: "EmailNotifier", type: "class", stereotype: null, methods: ["+ send(msg: Message): void"], properties: ["- smtpClient: SmtpClient"], x: 6, y: 14 },
+          { id: "node-3", name: "SmsNotifier", type: "class", stereotype: null, methods: ["+ send(msg: Message): void"], properties: ["- smsGateway: SmsGateway"], x: 17, y: 14 },
+          { id: "node-4", name: "PushNotifier", type: "class", stereotype: null, methods: ["+ send(msg: Message): void"], properties: ["- pushService: PushService"], x: 28, y: 14 },
+          { id: "node-5", name: "NotifierDecorator", type: "abstract", stereotype: "«abstract»", methods: ["+ send(msg: Message): void"], properties: ["# wrapped: Notifier"], x: 40, y: 2 },
+          { id: "node-6", name: "LoggingDecorator", type: "class", stereotype: null, methods: ["+ send(msg: Message): void"], properties: ["- logger: Logger"], x: 52, y: 2 },
+          { id: "node-7", name: "RetryDecorator", type: "class", stereotype: null, methods: ["+ send(msg: Message): void"], properties: ["- maxRetries: int", "- strategy: RetryStrategy"], x: 40, y: 10 },
+          { id: "node-8", name: "NotifyObserver", type: "interface", stereotype: "«interface»", methods: ["+ onSent(msg: Message): void", "+ onFailed(msg: Message, err: Error): void"], properties: [], x: -19, y: 11 },
+          { id: "node-9", name: "AnalyticsObserver", type: "class", stereotype: null, methods: ["+ onSent(msg: Message): void", "+ onFailed(msg: Message, err: Error): void"], properties: ["- analyticsService: Analytics"], x: -28, y: 20 },
+          { id: "node-10", name: "AuditLogObserver", type: "class", stereotype: null, methods: ["+ onSent(msg: Message): void", "+ onFailed(msg: Message, err: Error): void"], properties: ["- auditLog: AuditLog"], x: -10, y: 20 },
+          { id: "node-11", name: "RetryStrategy", type: "interface", stereotype: "«interface»", methods: ["+ shouldRetry(attempt: int): boolean", "+ getDelay(attempt: int): int"], properties: [], x: 40, y: 17 },
+          { id: "node-12", name: "ExponentialBackoff", type: "class", stereotype: null, methods: ["+ shouldRetry(attempt: int): boolean", "+ getDelay(attempt: int): int"], properties: ["- baseDelay: int", "- maxDelay: int"], x: 32, y: 25 },
+          { id: "node-13", name: "LinearBackoff", type: "class", stereotype: null, methods: ["+ shouldRetry(attempt: int): boolean", "+ getDelay(attempt: int): int"], properties: ["- delayIncrement: int"], x: 47, y: 25 },
+          { id: "node-14", name: "NotificationService", type: "class", stereotype: null, methods: ["+ notify(user: User, msg: Message): void", "+ setNotifier(n: Notifier): void"], properties: ["- notifier: Notifier", "- factory: NotifierFactory"], x: -6, y: -11 }
+        ]
+      },
+      // Visual settings
+      density: 0.5,
+      particleSize: 1,
+      particleOpacity: 0.5,
+      nodeWidth: 300,
+      nodeHeight: 220,
+      // Noise/glitch settings
+      noiseScale: 0.05,
+      noiseSpeed: 2,
+      displacementXY: 4,
+      displacementZ: 10,
+      turbulence: 8,
+      lacunarity: 2,
+      persistence: 0.5,
+      sharpness: 5,
+      contrast: 1.5,
+      glitchIntensity: 3,
+      glitchChance: 0.5,
+      glitchMaskScale: 0.005,
+      glitchSpeed: 0.5,
+      rgbSplit: 1,
+      // Camera settings
+      cameraSpeed: 0.05,
+      cameraDistance: 1000,
+      cameraFov: 70,
+      cameraTilt: 60,
+      cameraAmpX: 500,
+      cameraAmpY: 500,
+      cameraAmpZ: 500,
+      cameraFreqX: 2,
+      cameraFreqY: 3,
+      cameraFreqZ: 5,
+      // Morph settings
+      morphSpeed: 0.4,
+      // Code camera settings
+      codeScrollSpeed: 0.1,
+      codeZoom: 4,
+      codeSway: 100,
+      // Film grain
+      filmGrain: 0.5,
+      vignette: 0.5,
+      // Connections
+      connections: [
+        { from: "node-0", to: "node-1", type: "dependency" },
+        { from: "node-2", to: "node-1", type: "implements" },
+        { from: "node-3", to: "node-1", type: "implements" },
+        { from: "node-4", to: "node-1", type: "implements" },
+        { from: "node-5", to: "node-1", type: "implements" },
+        { from: "node-5", to: "node-1", type: "aggregation" },
+        { from: "node-6", to: "node-5", type: "extends" },
+        { from: "node-7", to: "node-5", type: "extends" },
+        { from: "node-1", to: "node-8", type: "association" },
+        { from: "node-9", to: "node-8", type: "implements" },
+        { from: "node-10", to: "node-8", type: "implements" },
+        { from: "node-7", to: "node-11", type: "association" },
+        { from: "node-12", to: "node-11", type: "implements" },
+        { from: "node-13", to: "node-11", type: "implements" },
+        { from: "node-14", to: "node-0", type: "association" },
+        { from: "node-14", to: "node-1", type: "association" }
+      ]
+    };
+
+    // Code sample for morph target
+    const sampleCode = `// Notification System - Combined Patterns
+interface Notifier {
+  send(msg: Message): void;
+  attach(observer: NotifyObserver): void;
+  detach(observer: NotifyObserver): void;
+}
+
+class NotifierFactory {
+  createNotifier(type: string): Notifier {
+    switch(type) {
+      case 'email': return new EmailNotifier();
+      case 'sms': return new SmsNotifier();
+      case 'push': return new PushNotifier();
+    }
+  }
+}
+
+abstract class NotifierDecorator implements Notifier {
+  protected wrapped: Notifier;
+
+  send(msg: Message): void {
+    this.wrapped.send(msg);
+  }
+}
+
+class RetryDecorator extends NotifierDecorator {
+  private strategy: RetryStrategy;
+
+  send(msg: Message): void {
+    while(this.strategy.shouldRetry(attempt)) {
+      try { this.wrapped.send(msg); }
+      catch { await delay(this.strategy.getDelay()); }
+    }
+  }
+}
+
+interface NotifyObserver {
+  onSent(msg: Message): void;
+  onFailed(msg: Message, err: Error): void;
+}`;
+
+    // ========== THREE.JS SETUP ==========
+    const container = document.getElementById('container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(config.cameraFov, window.innerWidth / window.innerHeight, 0.1, 10000);
+    camera.position.z = config.cameraDistance;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    // ========== OFFSCREEN CANVAS FOR TEXT RENDERING ==========
+    const textCanvas = document.createElement('canvas');
+    const textCtx = textCanvas.getContext('2d');
+
+    function createUMLTexture(node) {
+      const scale = 2;
+      textCanvas.width = config.nodeWidth * scale;
+      textCanvas.height = config.nodeHeight * scale;
+
+      textCtx.setTransform(1, 0, 0, 1, 0, 0);
+      textCtx.scale(scale, scale);
+
+      // Background
+      textCtx.fillStyle = 'black';
+      textCtx.fillRect(0, 0, config.nodeWidth, config.nodeHeight);
+
+      // Border
+      textCtx.strokeStyle = '#d4a855';
+      textCtx.lineWidth = 2;
+      textCtx.strokeRect(3, 3, config.nodeWidth - 6, config.nodeHeight - 6);
+
+      // Header background
+      textCtx.fillStyle = '#d4a855';
+      textCtx.globalAlpha = node.type === 'interface' ? 0.15 : 0.08;
+      textCtx.fillRect(3, 3, config.nodeWidth - 6, 55);
+      textCtx.globalAlpha = 1;
+
+      // Header separator
+      textCtx.beginPath();
+      textCtx.moveTo(3, 58);
+      textCtx.lineTo(config.nodeWidth - 3, 58);
+      textCtx.stroke();
+
+      // Stereotype
+      if (node.stereotype) {
+        textCtx.fillStyle = '#888';
+        textCtx.font = 'italic 11px monospace';
+        textCtx.textAlign = 'center';
+        textCtx.fillText(node.stereotype, config.nodeWidth / 2, 22);
+      }
+
+      // Name
+      textCtx.fillStyle = '#d4a855';
+      textCtx.font = 'bold 14px monospace';
+      textCtx.textAlign = 'center';
+      textCtx.fillText(node.name, config.nodeWidth / 2, 42);
+
+      // Methods
+      textCtx.font = '11px monospace';
+      textCtx.textAlign = 'left';
+      textCtx.fillStyle = '#aaa';
+      let y = 78;
+      (node.methods || []).forEach(method => {
+        textCtx.fillText(method, 15, y);
+        y += 18;
+      });
+
+      return textCanvas;
+    }
+
+    function createCodeTexture(code) {
+      const lines = code.split('\n');
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.4;
+      const padding = 20;
+      const maxLineLength = Math.max(...lines.map(l => l.length));
+      const charWidth = fontSize * 0.6;
+      const width = Math.max(800, maxLineLength * charWidth + padding * 2);
+      const height = lines.length * lineHeight + padding * 2;
+
+      textCanvas.width = width;
+      textCanvas.height = height;
+
+      textCtx.fillStyle = '#0d0d0d';
+      textCtx.fillRect(0, 0, width, height);
+
+      textCtx.font = `${fontSize}px monospace`;
+      textCtx.textBaseline = 'top';
+
+      lines.forEach((line, i) => {
+        // Syntax highlighting
+        if (line.includes('//')) textCtx.fillStyle = '#6a9955';
+        else if (line.includes('interface') || line.includes('class') || line.includes('abstract')) textCtx.fillStyle = '#569cd6';
+        else if (line.includes('function') || line.includes('=>')) textCtx.fillStyle = '#dcdcaa';
+        else textCtx.fillStyle = '#d4d4d4';
+
+        textCtx.fillText(line, padding, padding + i * lineHeight);
+      });
+
+      return textCanvas;
+    }
+
+    // ========== PARTICLE DATA GENERATION ==========
+    function sampleParticlesFromCanvas(canvas, density, offsetX, offsetY) {
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const particles = [];
+      const scale = 0.25;
+
+      for (let y = 0; y < canvas.height; y += density) {
+        for (let x = 0; x < canvas.width; x += density) {
+          const i = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const brightness = (r + g + b) / 3;
+          if (brightness < 20) continue;
+
+          particles.push({
+            x: (x - canvas.width / 2) * scale + offsetX,
+            y: (canvas.height / 2 - y) * scale + offsetY,
+            z: (Math.random() - 0.5) * 3,
+            r: r / 255, g: g / 255, b: b / 255,
+            brightness: brightness / 255
+          });
+        }
+      }
+      return particles;
+    }
+
+    // Store node world positions for connection lines
+    const nodeWorldPositions = {};
+
+    function getUMLParticleData() {
+      const allParticles = [];
+      const pattern = config.pattern;
+      const gridSpacing = 18;
+
+      // Calculate bounds
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      pattern.nodes.forEach(n => {
+        minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+        minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+      });
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+
+      for (const node of pattern.nodes) {
+        const offsetX = ((node.x || 0) - centerX) * gridSpacing;
+        const offsetY = (centerY - (node.y || 0)) * gridSpacing;
+
+        const canvas = createUMLTexture(node);
+        const scale = 0.25;
+        const nodeWidth = canvas.width * scale;
+        const nodeHeight = canvas.height * scale;
+
+        // Store position for connection lines
+        nodeWorldPositions[node.id] = {
+          x: offsetX,
+          y: offsetY,
+          width: nodeWidth,
+          height: nodeHeight,
+          top: offsetY + nodeHeight / 2,
+          bottom: offsetY - nodeHeight / 2,
+          left: offsetX - nodeWidth / 2,
+          right: offsetX + nodeWidth / 2
+        };
+
+        const nodeParticles = sampleParticlesFromCanvas(canvas, config.density, offsetX, offsetY);
+        allParticles.push(...nodeParticles);
+      }
+      return allParticles;
+    }
+
+    function getCodeParticleData() {
+      const canvas = createCodeTexture(sampleCode);
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const particles = [];
+      const scale = 0.5;
+
+      for (let y = 0; y < canvas.height; y += 0.8) {
+        for (let x = 0; x < canvas.width; x += 0.8) {
+          const i = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const brightness = (r + g + b) / 3;
+          if (brightness < 15) continue;
+
+          particles.push({
+            x: (x - canvas.width / 2) * scale + 350,
+            y: (canvas.height / 2 - y) * scale,
+            z: -100,
+            r: r / 255, g: g / 255, b: b / 255,
+            brightness: brightness / 255
+          });
+        }
+      }
+      return particles;
+    }
+
+    function matchParticles(source, target) {
+      if (source.length === 0 || target.length === 0) return [];
+
+      const maxCount = Math.max(source.length, target.length);
+      while (source.length < maxCount) source.push({...source[Math.floor(Math.random() * source.length)]});
+      while (target.length < maxCount) target.push({...target[Math.floor(Math.random() * target.length)]});
+
+      source.sort((a, b) => (a.y * 10000 + a.x) - (b.y * 10000 + b.x));
+      target.sort((a, b) => (a.y * 10000 + a.x) - (b.y * 10000 + b.x));
+
+      return source.map((s, i) => ({ source: s, target: target[i] }));
+    }
+
+    // ========== SHADERS ==========
+    const vertexShader = `
+      attribute float size;
+      attribute vec3 original;
+      attribute vec3 targetPos;
+      attribute vec3 targetColor;
+
+      varying vec3 vColor;
+      varying float vActivation;
+      varying float vRgbOffset;
+
+      uniform float time;
+      uniform float pixelRatio;
+      uniform float morphProgress;
+      uniform float noiseScale;
+      uniform float noiseSpeed;
+      uniform float displacementXY;
+      uniform float displacementZ;
+      uniform int turbulence;
+      uniform float lacunarity;
+      uniform float persistence;
+      uniform float sharpness;
+      uniform float contrast;
+      uniform float particleSizeMultiplier;
+      uniform bool useNoise;
+      uniform float glitchIntensity;
+      uniform float glitchChance;
+      uniform float glitchMaskScale;
+      uniform float glitchSpeed;
+      uniform float rgbSplit;
+      uniform float lodNear;
+      uniform float lodFar;
+
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+      vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+      float snoise(vec3 v) {
+        const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+        vec3 i = floor(v + dot(v, C.yyy));
+        vec3 x0 = v - i + dot(i, C.xxx);
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - D.yyy;
+        i = mod289(i);
+        vec4 p = permute(permute(permute(
+            i.z + vec4(0.0, i1.z, i2.z, 1.0))
+          + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+          + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+        float n_ = 0.142857142857;
+        vec3 ns = n_ * D.wyz - D.xzx;
+        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+        vec4 x_ = floor(j * ns.z);
+        vec4 y_ = floor(j - 7.0 * x_);
+        vec4 x = x_ * ns.x + ns.yyyy;
+        vec4 y = y_ * ns.x + ns.yyyy;
+        vec4 h = 1.0 - abs(x) - abs(y);
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+        vec4 s0 = floor(b0)*2.0 + 1.0;
+        vec4 s1 = floor(b1)*2.0 + 1.0;
+        vec4 sh = -step(h, vec4(0.0));
+        vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+        vec3 p0 = vec3(a0.xy, h.x);
+        vec3 p1 = vec3(a0.zw, h.y);
+        vec3 p2 = vec3(a1.xy, h.z);
+        vec3 p3 = vec3(a1.zw, h.w);
+        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+        m = m * m;
+        return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+      }
+
+      float getActivation() {
+        float easeT = morphProgress * morphProgress * (3.0 - 2.0 * morphProgress);
+        vec3 morphedPos = mix(original, targetPos, easeT);
+
+        vec3 spatialCoord = morphedPos * glitchMaskScale;
+        spatialCoord += vec3(
+          sin(time * 0.2) * 20.0 + cos(time * 0.15) * 15.0,
+          cos(time * 0.17) * 18.0 + sin(time * 0.23) * 12.0,
+          sin(time * 0.13) * 10.0
+        );
+        float spatialNoise = snoise(spatialCoord);
+
+        float holdTime = 0.3;
+        float quantizedTime = floor(time / holdTime) * holdTime;
+        vec3 temporalCoord = vec3(
+          quantizedTime * glitchSpeed + morphedPos.x * 0.002,
+          quantizedTime * glitchSpeed * 1.3 + morphedPos.y * 0.002,
+          morphedPos.z * 0.01
+        );
+        float temporalNoise = snoise(temporalCoord);
+
+        float spatialThreshold = 1.0 - glitchChance * 1.5;
+        float temporalThreshold = 0.5;
+
+        if (spatialNoise < spatialThreshold) return 0.0;
+        if (temporalNoise < temporalThreshold) return 0.0;
+
+        float activation = (spatialNoise - spatialThreshold) / (1.0 - spatialThreshold);
+        activation *= (temporalNoise - temporalThreshold) / (1.0 - temporalThreshold);
+
+        return activation * glitchIntensity;
+      }
+
+      void main() {
+        float easeT = morphProgress * morphProgress * (3.0 - 2.0 * morphProgress);
+        vec3 morphedPosition = mix(original, targetPos, easeT);
+        vColor = mix(color, targetColor, easeT);
+
+        float activation = getActivation();
+        vActivation = activation;
+        vRgbOffset = activation * rgbSplit;
+
+        vec3 pos = morphedPosition;
+
+        vec4 mvPositionOriginal = modelViewMatrix * vec4(morphedPosition, 1.0);
+        float camDist = max(1.0, -mvPositionOriginal.z);
+        float lodFactor = 1.0 - smoothstep(lodNear, lodFar, camDist);
+
+        if (useNoise && activation > 0.01 && lodFactor > 0.1) {
+          vec3 noiseCoord = morphedPosition * noiseScale + time * noiseSpeed;
+          float noiseStrength = activation * lodFactor;
+
+          float n = 0.0;
+          float amplitude = 1.0;
+          float frequency = 1.0;
+          float maxAmplitude = 0.0;
+
+          for (int i = 0; i < 8; i++) {
+            if (i >= turbulence) break;
+            n += amplitude * snoise(noiseCoord * frequency);
+            maxAmplitude += amplitude;
+            amplitude *= persistence;
+            frequency *= lacunarity;
+          }
+          n /= maxAmplitude;
+
+          if (sharpness > 0.0) n = sign(n) * pow(abs(n), 1.0 / (1.0 + sharpness));
+          if (contrast != 1.0) n = sign(n) * pow(abs(n), contrast);
+
+          n *= noiseStrength;
+
+          pos.x += n * displacementXY * 10.0;
+          pos.y += n * displacementXY * 10.0;
+          pos.z += snoise(noiseCoord * 1.5) * displacementZ * noiseStrength * 5.0;
+        }
+
+        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+        gl_PointSize = size * particleSizeMultiplier * pixelRatio * (300.0 / -mvPosition.z);
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `;
+
+    const fragmentShader = `
+      varying vec3 vColor;
+      varying float vActivation;
+      varying float vRgbOffset;
+      uniform float particleOpacity;
+
+      void main() {
+        vec2 center = gl_PointCoord - vec2(0.5);
+        float dist = length(center);
+        if (dist > 0.5) discard;
+
+        float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
+
+        vec3 finalColor = vColor;
+        if (vRgbOffset > 0.001) {
+          float redShift = center.x * vRgbOffset * 20.0;
+          float blueShift = -center.x * vRgbOffset * 20.0;
+          finalColor.r = vColor.r * (1.0 + redShift);
+          finalColor.b = vColor.b * (1.0 + blueShift);
+          float edgeFactor = smoothstep(0.2, 0.5, dist);
+          finalColor.r += edgeFactor * vRgbOffset * 2.0;
+          finalColor.b += edgeFactor * vRgbOffset * 1.5;
+        }
+
+        finalColor *= (1.0 + vActivation * 0.3);
+        gl_FragColor = vec4(finalColor, alpha * particleOpacity);
+      }
+    `;
+
+    // ========== CREATE PARTICLE SYSTEM ==========
+    let morphParticleSystem = null;
+    let morphProgress = 0;
+    let morphDirection = 1;
+    let morphHoldTimer = 5 + Math.random() * 15;
+    let cameraTime = 0;
+    let codeScrollOffset = 0;
+
+    function createMorphParticleSystem() {
+      const umlData = getUMLParticleData();
+      const codeData = getCodeParticleData();
+      const matched = matchParticles(umlData, codeData);
+      const count = matched.length;
+
+      if (count === 0) return null;
+
+      const originals = new Float32Array(count * 3);
+      const targetPositions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      const targetColors = new Float32Array(count * 3);
+      const sizes = new Float32Array(count);
+
+      matched.forEach((pair, i) => {
+        originals[i * 3] = pair.source.x;
+        originals[i * 3 + 1] = pair.source.y;
+        originals[i * 3 + 2] = pair.source.z;
+
+        targetPositions[i * 3] = pair.target.x;
+        targetPositions[i * 3 + 1] = pair.target.y;
+        targetPositions[i * 3 + 2] = pair.target.z;
+
+        colors[i * 3] = pair.source.r;
+        colors[i * 3 + 1] = pair.source.g;
+        colors[i * 3 + 2] = pair.source.b;
+
+        targetColors[i * 3] = pair.target.r;
+        targetColors[i * 3 + 1] = pair.target.g;
+        targetColors[i * 3 + 2] = pair.target.b;
+
+        sizes[i] = config.particleSize * 0.8 + pair.source.brightness * 1.0;
+      });
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(originals.slice(), 3));
+      geometry.setAttribute('original', new THREE.BufferAttribute(originals, 3));
+      geometry.setAttribute('targetPos', new THREE.BufferAttribute(targetPositions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('targetColor', new THREE.BufferAttribute(targetColors, 3));
+      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          pixelRatio: { value: renderer.getPixelRatio() },
+          morphProgress: { value: 0 },
+          noiseScale: { value: config.noiseScale },
+          noiseSpeed: { value: config.noiseSpeed },
+          displacementXY: { value: config.displacementXY },
+          displacementZ: { value: config.displacementZ },
+          turbulence: { value: config.turbulence },
+          lacunarity: { value: config.lacunarity },
+          persistence: { value: config.persistence },
+          sharpness: { value: config.sharpness },
+          contrast: { value: config.contrast },
+          particleSizeMultiplier: { value: 1 },
+          particleOpacity: { value: config.particleOpacity },
+          useNoise: { value: true },
+          glitchIntensity: { value: config.glitchIntensity },
+          glitchChance: { value: config.glitchChance },
+          glitchMaskScale: { value: config.glitchMaskScale },
+          glitchSpeed: { value: config.glitchSpeed },
+          rgbSplit: { value: config.rgbSplit },
+          lodNear: { value: 1000 },
+          lodFar: { value: 10000 }
+        },
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        vertexColors: true
+      });
+
+      return new THREE.Points(geometry, material);
+    }
+
+    // ========== CONNECTION LINES ==========
+    let connectionLines = [];
+
+    function createConnectionLines() {
+      connectionLines.forEach(line => {
+        scene.remove(line);
+        line.geometry?.dispose();
+        line.material?.dispose();
+      });
+      connectionLines = [];
+
+      config.connections.forEach(conn => {
+        const fromNode = nodeWorldPositions[conn.from];
+        const toNode = nodeWorldPositions[conn.to];
+        if (!fromNode || !toNode) return;
+
+        // Determine connection points
+        let startX, startY, endX, endY;
+
+        if (fromNode.y > toNode.y + 20) {
+          // From is above to - connect bottom to top
+          startX = fromNode.x;
+          startY = fromNode.bottom;
+          endX = toNode.x;
+          endY = toNode.top;
+        } else if (fromNode.y < toNode.y - 20) {
+          // From is below to - connect top to bottom
+          startX = fromNode.x;
+          startY = fromNode.top;
+          endX = toNode.x;
+          endY = toNode.bottom;
+        } else if (fromNode.x < toNode.x) {
+          // From is left of to
+          startX = fromNode.right;
+          startY = fromNode.y;
+          endX = toNode.left;
+          endY = toNode.y;
+        } else {
+          // From is right of to
+          startX = fromNode.left;
+          startY = fromNode.y;
+          endX = toNode.right;
+          endY = toNode.y;
+        }
+
+        // Create curved line
+        const start = new THREE.Vector3(startX, startY, 2);
+        const end = new THREE.Vector3(endX, endY, 2);
+        const mid = new THREE.Vector3(
+          (startX + endX) / 2,
+          (startY + endY) / 2 - Math.abs(startY - endY) * 0.3,
+          2
+        );
+
+        const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+        const points = curve.getPoints(30);
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+        const isDashed = conn.type === 'implements' || conn.type === 'dependency';
+        const material = new THREE.LineBasicMaterial({
+          color: 0xd4a855,
+          transparent: true,
+          opacity: isDashed ? 0.3 : 0.5
+        });
+
+        const line = new THREE.Line(geometry, material);
+        scene.add(line);
+        connectionLines.push(line);
+
+        // Add arrowhead
+        const tangent = curve.getTangent(1);
+        const arrowGeo = new THREE.ConeGeometry(3, 8, 3);
+        const arrowMat = new THREE.MeshBasicMaterial({
+          color: 0xd4a855,
+          transparent: true,
+          opacity: 0.5
+        });
+        const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+        arrow.position.copy(end);
+        arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+        scene.add(arrow);
+        connectionLines.push(arrow);
+      });
+    }
+
+    // ========== CAMERA ANIMATION ==========
+    function getCinematicPosition(t) {
+      const tiltRad = config.cameraTilt * Math.PI / 180;
+      const x = config.cameraAmpX * Math.sin(config.cameraFreqX * t);
+      const y = config.cameraAmpY * Math.sin(config.cameraFreqY * t + Math.PI / 4);
+      const z = config.cameraDistance + config.cameraAmpZ * Math.sin(config.cameraFreqZ * t + Math.PI / 2);
+
+      const tiltedY = y * Math.cos(tiltRad) - z * Math.sin(tiltRad) * 0.3;
+      const tiltedZ = y * Math.sin(tiltRad) * 0.3 + z * Math.cos(tiltRad);
+
+      return { x, y: tiltedY, z: tiltedZ };
+    }
+
+    // ========== FILM OVERLAY ==========
+    const filmCanvas = document.getElementById('film-overlay');
+    const filmCtx = filmCanvas.getContext('2d');
+
+    function resizeFilmOverlay() {
+      filmCanvas.width = window.innerWidth;
+      filmCanvas.height = window.innerHeight;
+    }
+    resizeFilmOverlay();
+
+    function renderFilmEffects() {
+      const w = filmCanvas.width;
+      const h = filmCanvas.height;
+      filmCtx.clearRect(0, 0, w, h);
+
+      if (config.filmGrain > 0) {
+        const imageData = filmCtx.createImageData(w, h);
+        const data = imageData.data;
+        const grain = config.filmGrain * 255;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const noise = (Math.random() - 0.5) * grain;
+          data[i] = 128 + noise;
+          data[i + 1] = 128 + noise;
+          data[i + 2] = 128 + noise;
+          data[i + 3] = Math.abs(noise) * 0.5;
+        }
+        filmCtx.putImageData(imageData, 0, 0);
+      }
+
+      if (config.vignette > 0) {
+        const gradient = filmCtx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h) * 0.7);
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(0.5, 'rgba(0,0,0,0)');
+        gradient.addColorStop(1, `rgba(0,0,0,${config.vignette})`);
+        filmCtx.fillStyle = gradient;
+        filmCtx.fillRect(0, 0, w, h);
+      }
+    }
+
+    // ========== ANIMATION LOOP ==========
+    let lastTime = 0;
+
+    function animate(currentTime = 0) {
+      requestAnimationFrame(animate);
+
+      const delta = Math.min((currentTime - lastTime) / 1000, 0.1);
+      lastTime = currentTime;
+
+      if (!morphParticleSystem) return;
+
+      // Update time uniform
+      morphParticleSystem.material.uniforms.time.value += delta;
+
+      // Morph animation
+      if (morphHoldTimer > 0) {
+        morphHoldTimer -= delta;
+      } else {
+        morphProgress += delta * config.morphSpeed * morphDirection;
+
+        if (morphProgress >= 1) {
+          morphProgress = 1;
+          morphDirection = -1;
+          morphHoldTimer = 5 + Math.random() * 15;
+        } else if (morphProgress <= 0) {
+          morphProgress = 0;
+          morphDirection = 1;
+          morphHoldTimer = 5 + Math.random() * 15;
+        }
+      }
+
+      morphParticleSystem.material.uniforms.morphProgress.value = morphProgress;
+
+      // Camera animation
+      const easeT = morphProgress * morphProgress * (3.0 - 2.0 * morphProgress);
+
+      // Fade connection lines based on morph progress (visible at UML, hidden at code)
+      connectionLines.forEach(line => {
+        if (line.material) {
+          line.material.opacity = (1 - easeT) * 0.5;
+        }
+      });
+      cameraTime += delta * config.cameraSpeed;
+
+      // UML camera (cinematic Lissajous path)
+      cameraTime += delta * config.cameraSpeed;
+      const umlPos = getCinematicPosition(cameraTime);
+
+      // Code camera (exact same as original updateCodeCamera)
+      codeScrollOffset += delta * config.codeScrollSpeed * 50;
+      if (codeScrollOffset > 400) codeScrollOffset = -100;
+
+      const codeDistance = 150 / config.codeZoom;
+      const swayX = Math.sin(codeScrollOffset * 0.01) * config.codeSway * 0.2;
+      const swayZ = Math.cos(codeScrollOffset * 0.008) * config.codeSway * 0.1;
+
+      const codeCamX = -80 + swayX;
+      const codeCamY = -codeScrollOffset + 100;
+      const codeCamZ = codeDistance + swayZ;
+      const codeLookX = codeCamX + 80;  // Look at X=0
+      const codeLookY = codeCamY;
+
+      // Interpolate between UML and code camera
+      camera.position.x = umlPos.x * (1 - easeT) + codeCamX * easeT;
+      camera.position.y = umlPos.y * (1 - easeT) + codeCamY * easeT;
+      camera.position.z = umlPos.z * (1 - easeT) + codeCamZ * easeT;
+
+      // Look at interpolated position
+      const lookX = 0 * (1 - easeT) + codeLookX * easeT;
+      const lookY = 0 * (1 - easeT) + codeLookY * easeT;
+      camera.lookAt(lookX, lookY, 0);
+
+      // Film effects
+      renderFilmEffects();
+
+      renderer.render(scene, camera);
+    }
+
+    // ========== INIT ==========
+    morphParticleSystem = createMorphParticleSystem();
+    if (morphParticleSystem) scene.add(morphParticleSystem);
+    createConnectionLines();
+    animate();
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      resizeFilmOverlay();
+      if (morphParticleSystem) {
+        morphParticleSystem.material.uniforms.pixelRatio.value = renderer.getPixelRatio();
+      }
+    });
+  </script>
+</body>
+</html>
