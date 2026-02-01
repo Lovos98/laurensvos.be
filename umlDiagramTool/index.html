@@ -653,16 +653,17 @@
   <!-- Sidebar (right side) -->
   <div id="sidebar">
     <div id="tabs">
-      <div class="tab active" data-tab="uml-generator">UML</div>
+      <div class="tab active" data-tab="uml-generator">Layout</div>
       <div class="tab" data-tab="noise-generator">Noise</div>
       <div class="tab" data-tab="code-preview">Code</div>
-      <div class="tab" data-tab="total-preview">Preview</div>
+      <div class="tab" data-tab="total-preview">UML</div>
+      <div class="tab" data-tab="morph-preview">Preview</div>
     </div>
 
     <div id="controls">
-    <!-- UML Generator Tab -->
+    <!-- Layout Tab (was UML Generator) -->
     <div class="tab-content active" id="tab-uml-generator">
-      <h3>UML Generator</h3>
+      <h3>Layout Editor</h3>
 
       <h4>Design Pattern</h4>
       <div class="control-group">
@@ -831,21 +832,17 @@
         <textarea id="customCode" rows="8" placeholder="Paste your code here..." style="width: 100%; background: #1a1a1a; color: #e0e0e0; border: 1px solid #333; padding: 8px; font-family: monospace; font-size: 11px;"></textarea>
       </div>
 
-      <h4>Camera Scroll</h4>
+      <h4>Camera</h4>
       <div class="control-group">
         <label>Scroll Speed <span class="value" id="codeScrollSpeedVal">0.5</span></label>
         <input type="range" id="codeScrollSpeed" min="0" max="2" step="0.1" value="0.5">
       </div>
       <div class="control-group">
-        <label>Zoom (Macro) <span class="value" id="codeZoomVal">1.5</span></label>
+        <label>Zoom <span class="value" id="codeZoomVal">1.5</span></label>
         <input type="range" id="codeZoom" min="0.5" max="4" step="0.1" value="1.5">
       </div>
       <div class="control-group">
-        <label>Tilt <span class="value" id="codeTiltVal">15</span></label>
-        <input type="range" id="codeTilt" min="0" max="45" step="5" value="15">
-      </div>
-      <div class="control-group">
-        <label>Sway Amount <span class="value" id="codeSwayVal">30</span></label>
+        <label>Sway <span class="value" id="codeSwayVal">30</span></label>
         <input type="range" id="codeSway" min="0" max="100" step="5" value="30">
       </div>
 
@@ -855,32 +852,18 @@
         <input type="range" id="codeDensity" min="0.3" max="2" step="0.1" value="0.8">
       </div>
       <div class="control-group">
-        <label>Z Depth <span class="value" id="codeZDepthVal">20</span></label>
-        <input type="range" id="codeZDepth" min="0" max="100" step="5" value="20">
-      </div>
-      <div class="control-group">
-        <label>Z Spread <span class="value" id="codeZSpreadVal">0.5</span></label>
-        <input type="range" id="codeZSpread" min="0" max="1" step="0.1" value="0.5">
-      </div>
-
-      <h4>Code Style</h4>
-      <div class="control-group">
-        <label>Font Size <span class="value" id="codeFontSizeVal">14</span></label>
-        <input type="range" id="codeFontSize" min="10" max="24" step="1" value="14">
-      </div>
-      <div class="control-group">
-        <label>Line Height <span class="value" id="codeLineHeightVal">1.4</span></label>
-        <input type="range" id="codeLineHeight" min="1" max="2" step="0.1" value="1.4">
+        <label>Z Depth <span class="value" id="codeZDepthVal">0</span></label>
+        <input type="range" id="codeZDepth" min="0" max="50" step="1" value="0">
       </div>
 
       <button id="regenerateCode" style="width: 100%;">Regenerate Code Particles</button>
     </div>
 
-    <!-- Total Preview Tab -->
+    <!-- UML Tab (was Total Preview) -->
     <div class="tab-content" id="tab-total-preview">
-      <h3>Cinematic Preview</h3>
+      <h3>UML Preview</h3>
 
-      <button id="regeneratePreview" class="regen-btn">Regenerate Procedural UML</button>
+      <button id="regeneratePreview" class="regen-btn">Regenerate UML</button>
 
       <h4>Camera Path (Lissajous)</h4>
       <div class="control-group">
@@ -984,6 +967,27 @@
         </button>
       </div>
     </div>
+
+    <!-- Morph Preview Tab -->
+    <div class="tab-content" id="tab-morph-preview">
+      <h3>Preview</h3>
+      <p style="color: #888; font-size: 11px; margin-bottom: 15px;">
+        Morphs between Code and UML views with their respective cameras and effects.
+        Hold time: 5-20s random.
+      </p>
+
+      <h4>Transition</h4>
+      <div class="control-group">
+        <label>Progress <span class="value" id="morphProgressVal">0</span></label>
+        <input type="range" id="morphProgress" min="0" max="1" step="0.01" value="0">
+      </div>
+      <div class="control-group">
+        <label>Speed <span class="value" id="morphSpeedVal">0.3</span></label>
+        <input type="range" id="morphSpeed" min="0" max="1" step="0.05" value="0.3">
+      </div>
+
+      <button id="regenerateMorph" style="width: 100%;">Regenerate</button>
+    </div>
   </div>
   </div>
 
@@ -1046,13 +1050,12 @@
       // Code preview
       codeScrollSpeed: 0.5,
       codeZoom: 1.5,
-      codeTilt: 15,
       codeSway: 30,
       codeDensity: 0.8,
-      codeZDepth: 20,
-      codeZSpread: 0.5,
-      codeFontSize: 14,
-      codeLineHeight: 1.4,
+      codeZDepth: 0,
+      // Morph preview
+      morphProgress: 0,
+      morphSpeed: 0.3,
       // Post effects
       vignette: 0.4,
       // Layout settings
@@ -1065,6 +1068,24 @@
 
     // Will be populated from values.json
     let params = { ...hardcodedDefaults };
+
+    // Device capability detection (used for performance optimization)
+    const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isLowEnd = isMobile || window.innerWidth < 1024;
+    const maxParticles = 1000000;  // 1M particles max, FPS system handles performance
+
+    // Preview-specific quality multiplier (doesn't affect other tabs)
+    // 1 = max quality (use params.density as-is), higher = fewer particles
+    // Start at max quality, let FPS system reduce if needed
+    let previewQualityMultiplier = 1;
+
+    function getPreviewDensity() {
+      return (params.density || 0.5) * previewQualityMultiplier;
+    }
+
+    function getPreviewCodeDensity() {
+      return (params.codeDensity || 0.8) * previewQualityMultiplier;
+    }
 
     // Load settings from values.json via API
     async function loadSettingsFromFile() {
@@ -2621,8 +2642,7 @@ function animate() {
       const data = imageData.data;
 
       const density = params.codeDensity || 0.8;
-      const zDepth = params.codeZDepth || 20;
-      const zSpread = params.codeZSpread || 0.5;
+      const zDepth = params.codeZDepth || 0; // 0 = flat/readable
       const scale = 0.5; // Scale down for 3D view
 
       for (let y = 0; y < canvas.height; y += density) {
@@ -2635,14 +2655,13 @@ function animate() {
           const brightness = (r + g + b) / 3;
           if (brightness < 15) continue; // Skip dark pixels
 
-          // Z depth based on brightness and random spread
-          const baseZ = (brightness / 255) * zDepth * zSpread;
-          const randomZ = (Math.random() - 0.5) * zDepth * (1 - zSpread);
+          // Z depth: 0 = completely flat (readable), higher = more depth spread
+          const z = (Math.random() - 0.5) * zDepth;
 
           particles.push({
             x: (x - canvas.width / 2) * scale,
             y: (canvas.height / 2 - y) * scale, // Flip Y
-            z: baseZ + randomZ,
+            z: z,
             color: { r: r / 255, g: g / 255, b: b / 255 },
             brightness: brightness / 255
           });
@@ -2899,6 +2918,179 @@ function animate() {
           finalColor *= (1.0 + vActivation * 0.3);
 
           gl_FragColor = vec4(finalColor, alpha * particleOpacity);
+        }
+      `;
+    }
+
+    // GPU-based morph vertex shader - lerps between source and target positions/colors
+    function getMorphVertexShader() {
+      return `
+        attribute float size;
+        attribute vec3 original;      // Source position (UML)
+        attribute vec3 targetPos;     // Target position (Code)
+        attribute vec3 targetColor;   // Target color (Code)
+
+        varying vec3 vColor;
+        varying float vActivation;
+        varying float vRgbOffset;
+
+        uniform float time;
+        uniform float pixelRatio;
+        uniform float morphProgress;  // 0 = UML, 1 = Code
+        uniform int noiseType;
+        uniform float noiseScale;
+        uniform float noiseSpeed;
+        uniform float displacementXY;
+        uniform float displacementZ;
+        uniform float blockSize;
+        uniform int turbulence;
+        uniform float lacunarity;
+        uniform float persistence;
+        uniform float sharpness;
+        uniform float contrast;
+        uniform float particleSizeMultiplier;
+        uniform bool useNoise;
+        uniform bool useActivation;
+        uniform float glitchIntensity;
+        uniform float glitchChance;
+        uniform float glitchMaskScale;
+        uniform float glitchSpeed;
+        uniform float rgbSplit;
+
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+        vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+        float snoise(vec3 v) {
+          const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+          const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+          vec3 i = floor(v + dot(v, C.yyy));
+          vec3 x0 = v - i + dot(i, C.xxx);
+          vec3 g = step(x0.yzx, x0.xyz);
+          vec3 l = 1.0 - g;
+          vec3 i1 = min(g.xyz, l.zxy);
+          vec3 i2 = max(g.xyz, l.zxy);
+          vec3 x1 = x0 - i1 + C.xxx;
+          vec3 x2 = x0 - i2 + C.yyy;
+          vec3 x3 = x0 - D.yyy;
+          i = mod289(i);
+          vec4 p = permute(permute(permute(
+              i.z + vec4(0.0, i1.z, i2.z, 1.0))
+            + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+            + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+          float n_ = 0.142857142857;
+          vec3 ns = n_ * D.wyz - D.xzx;
+          vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+          vec4 x_ = floor(j * ns.z);
+          vec4 y_ = floor(j - 7.0 * x_);
+          vec4 x = x_ * ns.x + ns.yyyy;
+          vec4 y = y_ * ns.x + ns.yyyy;
+          vec4 h = 1.0 - abs(x) - abs(y);
+          vec4 b0 = vec4(x.xy, y.xy);
+          vec4 b1 = vec4(x.zw, y.zw);
+          vec4 s0 = floor(b0)*2.0 + 1.0;
+          vec4 s1 = floor(b1)*2.0 + 1.0;
+          vec4 sh = -step(h, vec4(0.0));
+          vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+          vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+          vec3 p0 = vec3(a0.xy, h.x);
+          vec3 p1 = vec3(a0.zw, h.y);
+          vec3 p2 = vec3(a1.xy, h.z);
+          vec3 p3 = vec3(a1.zw, h.w);
+          vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+          p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+          vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+          m = m * m;
+          return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+        }
+
+        float getActivation() {
+          if (!useActivation) return 1.0;
+
+          // Use morphed position for activation
+          float easeT = morphProgress * morphProgress * (3.0 - 2.0 * morphProgress);
+          vec3 morphedPos = mix(original, targetPos, easeT);
+
+          vec3 spatialCoord = morphedPos * glitchMaskScale;
+          spatialCoord += vec3(
+            sin(time * 0.2) * 20.0 + cos(time * 0.15) * 15.0,
+            cos(time * 0.17) * 18.0 + sin(time * 0.23) * 12.0,
+            sin(time * 0.13) * 10.0
+          );
+          float spatialNoise = snoise(spatialCoord);
+
+          float holdTime = 0.3;
+          float quantizedTime = floor(time / holdTime) * holdTime;
+          vec3 temporalCoord = vec3(
+            quantizedTime * glitchSpeed + morphedPos.x * 0.002,
+            quantizedTime * glitchSpeed * 1.3 + morphedPos.y * 0.002,
+            morphedPos.z * 0.01
+          );
+          float temporalNoise = snoise(temporalCoord);
+
+          float spatialThreshold = 1.0 - glitchChance * 1.5;
+          float temporalThreshold = 0.5;
+
+          if (spatialNoise < spatialThreshold) return 0.0;
+          if (temporalNoise < temporalThreshold) return 0.0;
+
+          float activation = (spatialNoise - spatialThreshold) / (1.0 - spatialThreshold);
+          activation *= (temporalNoise - temporalThreshold) / (1.0 - temporalThreshold);
+
+          return activation * glitchIntensity;
+        }
+
+        void main() {
+          // Smoothstep easing for morph
+          float easeT = morphProgress * morphProgress * (3.0 - 2.0 * morphProgress);
+
+          // Lerp position between source and target
+          vec3 morphedPosition = mix(original, targetPos, easeT);
+
+          // Lerp color between source and target
+          vColor = mix(color, targetColor, easeT);
+
+          float activation = getActivation();
+          vActivation = activation;
+          vRgbOffset = activation * rgbSplit;
+
+          vec3 pos = morphedPosition;
+
+          if (useNoise && activation > 0.01) {
+            vec3 noiseCoord = morphedPosition * noiseScale + time * noiseSpeed;
+
+            float n = 0.0;
+            float amplitude = 1.0;
+            float frequency = 1.0;
+            float maxAmplitude = 0.0;
+
+            for (int i = 0; i < 8; i++) {
+              if (i >= turbulence) break;
+              n += amplitude * snoise(noiseCoord * frequency);
+              maxAmplitude += amplitude;
+              amplitude *= persistence;
+              frequency *= lacunarity;
+            }
+            n /= maxAmplitude;
+
+            if (sharpness > 0.0) {
+              n = sign(n) * pow(abs(n), 1.0 / (1.0 + sharpness));
+            }
+            if (contrast != 1.0) {
+              n = sign(n) * pow(abs(n), contrast);
+            }
+
+            n *= activation;
+
+            pos.x += n * displacementXY * 10.0;
+            pos.y += n * displacementXY * 10.0;
+            pos.z += snoise(noiseCoord * 1.5) * displacementZ * activation * 5.0;
+          }
+
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = size * particleSizeMultiplier * pixelRatio * (300.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
         }
       `;
     }
@@ -3622,6 +3814,14 @@ function animate() {
         codeParticleSystem = null;
       }
 
+      // Clean up morph particles if switching from morph view
+      if (morphParticleSystem) {
+        scene.remove(morphParticleSystem);
+        morphParticleSystem.geometry.dispose();
+        morphParticleSystem.material.dispose();
+        morphParticleSystem = null;
+      }
+
       // Clean up old connection lines
       connectionLines.forEach(line => {
         scene.remove(line);
@@ -3891,13 +4091,16 @@ function animate() {
 
       // Handle different tabs
       if (tabId === 'uml-generator') {
-        // Update UML editor when switching to UML tab
+        // Update UML editor when switching to Layout tab
         if (currentPattern) {
           updateUmlFromPattern();
         }
       } else if (tabId === 'code-preview') {
         // Create code particles
         regenerateCodeParticles();
+      } else if (tabId === 'morph-preview') {
+        // Create morph particles
+        regenerateMorphParticles();
       } else if (tabId !== 'uml-generator') {
         regenerateParticles();
       }
@@ -3935,39 +4138,424 @@ function animate() {
 
       const scrollSpeed = params.codeScrollSpeed || 0.5;
       const zoom = params.codeZoom || 1.5;
-      const tilt = (params.codeTilt || 15) * Math.PI / 180;
       const sway = params.codeSway || 30;
 
       // Scroll downward through code
       codeScrollOffset += delta * scrollSpeed * 50;
 
-      // Get code bounds (approximate)
-      const codeHeight = 2000;
+      // Loop within visible code range (reduced from 2000)
+      const codeHeight = 600;
       if (codeScrollOffset > codeHeight) {
-        codeScrollOffset = -500;
+        codeScrollOffset = -100;
       }
 
-      // Dolly slide - camera positioned to the side, looking at the code
-      const baseDistance = 200 / zoom;
+      // Dolly slide - camera positioned to the side, closer to code
+      const baseDistance = 150 / zoom;
 
-      // Gentle sway perpendicular to view direction
-      const swayAmount = Math.sin(codeScrollOffset * 0.008) * sway * 0.3;
+      // Gentle sway
+      const swayX = Math.sin(codeScrollOffset * 0.01) * sway * 0.2;
+      const swayZ = Math.cos(codeScrollOffset * 0.008) * sway * 0.1;
 
-      // Camera positioned to the left/right of center, sliding down
-      const cameraOffsetX = -150; // Offset to the left of the code
-      camera.position.x = cameraOffsetX + swayAmount;
-      camera.position.y = -codeScrollOffset + 200;
-      camera.position.z = baseDistance;
+      // Camera position - offset to the side, scrolling down
+      camera.position.x = -80 + swayX;
+      camera.position.y = -codeScrollOffset + 100;
+      camera.position.z = baseDistance + swayZ;
 
-      // Look at the code (to the right of camera)
-      const lookAtX = 50; // Look toward the center-right of code
-      const lookAtY = -codeScrollOffset + 150;
-      camera.lookAt(lookAtX, lookAtY, 0);
-
-      // Subtle tilt for cinematic feel
-      camera.rotation.z = tilt * 0.5 + Math.sin(codeScrollOffset * 0.003) * 0.05;
+      // Look straight ahead (same direction always, no rotation)
+      camera.lookAt(
+        camera.position.x + 80,   // Look to the right (toward code)
+        camera.position.y,         // Same Y level
+        0                          // Look at z=0 plane
+      );
 
       camera.updateProjectionMatrix();
+    }
+
+    // ============ MORPH PREVIEW SYSTEM ============
+    let morphParticleSystem = null;
+    let morphDirection = 1;  // 1 = toward code, -1 = toward UML
+    let morphHoldTimer = 0;
+
+    // Get particle data from UML (without creating Three.js objects)
+    function getUMLParticleData() {
+      const allParticles = [];
+
+      if (!currentPattern || !currentPattern.nodes) {
+        console.log('getUMLParticleData: No pattern, calling generatePattern()');
+        generatePattern();
+      }
+
+      const pattern = currentPattern;
+      if (!pattern || !pattern.nodes) {
+        console.error('getUMLParticleData: Pattern still missing after generatePattern()');
+        return allParticles;
+      }
+
+      console.log('getUMLParticleData: Processing', pattern.nodes.length, 'nodes');
+
+      const gridSpacing = 18;
+      const centerX = (pattern.minX + pattern.maxX) / 2;
+      const centerY = (pattern.minY + pattern.maxY) / 2;
+
+      // Clear and populate nodeWorldPositions for connection lines
+      nodeWorldPositions = {};
+
+      for (const node of pattern.nodes) {
+        const offsetX = ((node.x || 0) - centerX) * gridSpacing;
+        const offsetY = (centerY - (node.y || 0)) * gridSpacing;
+
+        const canvas = createUMLTexture(node);
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        // Use preview-specific density (affected by adaptive quality)
+        const density = getPreviewDensity() || 0.5;
+        const scale = 0.25;
+        const nodeWidth = canvas.width * scale;
+        const nodeHeight = canvas.height * scale;
+
+        // Store world position for connection lines
+        nodeWorldPositions[node.id] = {
+          x: offsetX,
+          y: offsetY,
+          width: nodeWidth,
+          height: nodeHeight,
+          left: offsetX - nodeWidth / 2,
+          right: offsetX + nodeWidth / 2,
+          top: offsetY + nodeHeight / 2,
+          bottom: offsetY - nodeHeight / 2
+        };
+
+        for (let y = 0; y < canvas.height; y += density) {
+          for (let x = 0; x < canvas.width; x += density) {
+            const i = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            const brightness = (r + g + b) / 3;
+            if (brightness < 20) continue;
+
+            allParticles.push({
+              x: (x - canvas.width / 2) * scale + offsetX,
+              y: (canvas.height / 2 - y) * scale + offsetY,
+              z: (Math.random() - 0.5) * 3,
+              r: r / 255, g: g / 255, b: b / 255,
+              brightness: brightness / 255
+            });
+          }
+        }
+      }
+      return allParticles;
+    }
+
+    // Get particle data from code
+    function getCodeParticleData() {
+      const code = currentCodeSource || sampleCode;
+      const canvas = createCodeTexture(code);
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      const particles = [];
+      // Use preview-specific density (affected by adaptive quality)
+      const density = getPreviewCodeDensity() || 0.8;
+      const scale = 0.5;
+
+      for (let y = 0; y < canvas.height; y += density) {
+        for (let x = 0; x < canvas.width; x += density) {
+          const i = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const brightness = (r + g + b) / 3;
+          if (brightness < 15) continue;
+
+          particles.push({
+            x: (x - canvas.width / 2) * scale,
+            y: (canvas.height / 2 - y) * scale,
+            z: 0,
+            r: r / 255, g: g / 255, b: b / 255,
+            brightness: brightness / 255
+          });
+        }
+      }
+      return particles;
+    }
+
+    // Match particles - fast grid-based spatial matching
+    function matchParticles(source, target) {
+      // Guard against empty arrays
+      if (source.length === 0 || target.length === 0) {
+        console.error('matchParticles: Empty array - source:', source.length, 'target:', target.length);
+        return [];
+      }
+
+      // Use full particle count for final quality
+      // Normalize counts - use the larger set, duplicate from smaller
+      const maxCount = Math.max(source.length, target.length);
+
+      // Extend smaller array by duplicating particles
+      while (source.length < maxCount) {
+        source.push({...source[Math.floor(Math.random() * source.length)]});
+      }
+      while (target.length < maxCount) {
+        target.push({...target[Math.floor(Math.random() * target.length)]});
+      }
+
+      // Sort both by position for spatial matching
+      source.sort((a, b) => (a.y * 10000 + a.x) - (b.y * 10000 + b.x));
+      target.sort((a, b) => (a.y * 10000 + a.x) - (b.y * 10000 + b.x));
+
+      // Pair in order after sorting
+      const matched = [];
+      for (let i = 0; i < maxCount; i++) {
+        matched.push({
+          source: source[i],
+          target: target[i]
+        });
+      }
+
+      return matched;
+    }
+
+    // Create the morph particle system
+    function createMorphParticleSystem() {
+      console.log('Creating morph particles with density:', getPreviewDensity(), 'code density:', getPreviewCodeDensity());
+
+      let umlData = getUMLParticleData();
+      let codeData = getCodeParticleData();
+
+      console.log(`Morph raw data: ${umlData.length} UML particles, ${codeData.length} code particles`);
+
+      // Check for empty data
+      if (umlData.length === 0) {
+        console.error('No UML particles - check if pattern is loaded');
+      }
+      if (codeData.length === 0) {
+        console.error('No code particles - check code source');
+      }
+
+      // Randomly sample if too many particles
+      if (umlData.length > maxParticles) {
+        umlData = umlData.sort(() => Math.random() - 0.5).slice(0, maxParticles);
+      }
+      if (codeData.length > maxParticles) {
+        codeData = codeData.sort(() => Math.random() - 0.5).slice(0, maxParticles);
+      }
+
+      console.log(`Morph after cap: ${umlData.length} UML, ${codeData.length} code (max: ${maxParticles})`);
+
+      const matched = matchParticles(umlData, codeData);
+      const count = matched.length;
+
+      console.log(`Morph: ${count} matched pairs`);
+
+      // All data stored as GPU attributes - no CPU updates needed
+      const originals = new Float32Array(count * 3);    // Source positions (UML)
+      const targetPositions = new Float32Array(count * 3);  // Target positions (Code)
+      const colors = new Float32Array(count * 3);       // Source colors (UML)
+      const targetColors = new Float32Array(count * 3); // Target colors (Code)
+      const sizes = new Float32Array(count);
+
+      matched.forEach((pair, i) => {
+        // Source (UML) positions - stored in 'original' attribute
+        originals[i * 3] = pair.source.x;
+        originals[i * 3 + 1] = pair.source.y;
+        originals[i * 3 + 2] = pair.source.z;
+
+        // Target (Code) positions
+        targetPositions[i * 3] = pair.target.x;
+        targetPositions[i * 3 + 1] = pair.target.y;
+        targetPositions[i * 3 + 2] = pair.target.z;
+
+        // Source colors (UML)
+        colors[i * 3] = pair.source.r;
+        colors[i * 3 + 1] = pair.source.g;
+        colors[i * 3 + 2] = pair.source.b;
+
+        // Target colors (Code)
+        targetColors[i * 3] = pair.target.r;
+        targetColors[i * 3 + 1] = pair.target.g;
+        targetColors[i * 3 + 2] = pair.target.b;
+
+        sizes[i] = params.particleSize * 0.8 + pair.source.brightness * 1.0;
+      });
+
+      const geometry = new THREE.BufferGeometry();
+      // Position attribute required by Three.js but we use 'original' for source pos
+      geometry.setAttribute('position', new THREE.BufferAttribute(originals.slice(), 3));
+      geometry.setAttribute('original', new THREE.BufferAttribute(originals, 3));
+      geometry.setAttribute('targetPos', new THREE.BufferAttribute(targetPositions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('targetColor', new THREE.BufferAttribute(targetColors, 3));
+      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      // Use GPU morph shader - all interpolation happens on GPU
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          pixelRatio: { value: renderer.getPixelRatio() },
+          morphProgress: { value: 0 },  // GPU morph control
+          noiseType: { value: 1 },
+          noiseScale: { value: params.noiseScale },
+          noiseSpeed: { value: params.noiseSpeed },
+          displacementXY: { value: params.displacementXY },
+          displacementZ: { value: params.displacementZ },
+          blockSize: { value: params.blockSize },
+          turbulence: { value: params.turbulence },
+          lacunarity: { value: params.lacunarity },
+          persistence: { value: params.persistence },
+          sharpness: { value: params.sharpness },
+          contrast: { value: params.contrast },
+          particleSizeMultiplier: { value: params.particleSizeMultiplier || 1 },
+          particleOpacity: { value: params.particleOpacity },
+          useNoise: { value: true },
+          useActivation: { value: true },
+          glitchIntensity: { value: params.glitchIntensity || 1.0 },
+          glitchChance: { value: params.glitchChance || 0.3 },
+          glitchMaskScale: { value: params.glitchMaskScale || 0.01 },
+          glitchSpeed: { value: params.glitchSpeed || 2.0 },
+          rgbSplit: { value: params.rgbSplit || 1.0 }
+        },
+        vertexShader: getMorphVertexShader(),
+        fragmentShader: getCodeFragmentShader(),
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        vertexColors: true
+      });
+
+      return new THREE.Points(geometry, material);
+    }
+
+    function regenerateMorphParticles() {
+      // Clean up existing
+      if (morphParticleSystem) {
+        scene.remove(morphParticleSystem);
+        morphParticleSystem.geometry.dispose();
+        morphParticleSystem.material.dispose();
+      }
+      if (particles) scene.remove(particles);
+      if (codeParticleSystem) scene.remove(codeParticleSystem);
+
+      // Clean up old connection lines
+      connectionLines.forEach(line => {
+        scene.remove(line);
+        if (line.geometry) line.geometry.dispose();
+        if (line.material) line.material.dispose();
+      });
+      connectionLines = [];
+
+      morphParticleSystem = createMorphParticleSystem();
+      scene.add(morphParticleSystem);
+
+      // Add connection lines for UML (will be faded based on morph progress)
+      createCurvedConnections();
+
+      morphDirection = 1;
+      // Start with random hold time
+      morphHoldTimer = 5 + Math.random() * 15;
+      codeScrollOffset = 0;
+    }
+
+    // Update morph animation - GPU-based, no CPU particle updates
+    function updateMorphAnimation(delta) {
+      if (!morphParticleSystem) return;
+
+      const speed = params.morphSpeed || 0.3;
+
+      // Auto-animate if speed > 0
+      if (speed > 0) {
+        if (morphHoldTimer > 0) {
+          morphHoldTimer -= delta;
+        } else {
+          params.morphProgress += delta * speed * morphDirection;
+
+          if (params.morphProgress >= 1) {
+            params.morphProgress = 1;
+            morphDirection = -1;
+            // Random hold time between 5 and 20 seconds
+            morphHoldTimer = 5 + Math.random() * 15;
+          } else if (params.morphProgress <= 0) {
+            params.morphProgress = 0;
+            morphDirection = 1;
+            // Random hold time between 5 and 20 seconds
+            morphHoldTimer = 5 + Math.random() * 15;
+          }
+
+          // Update slider
+          const slider = document.getElementById('morphProgress');
+          if (slider) slider.value = params.morphProgress;
+          const valEl = document.getElementById('morphProgressVal');
+          if (valEl) valEl.textContent = params.morphProgress.toFixed(2);
+        }
+      }
+
+      // GPU morph - just update the uniform, shader does all the work
+      morphParticleSystem.material.uniforms.morphProgress.value = params.morphProgress;
+
+      // Smoothstep easing for camera and connection lines (CPU side)
+      const t = params.morphProgress;
+      const easeT = t * t * (3 - 2 * t);
+
+      // Smoothly morph between Code camera and UML camera
+      // Use the same time accumulators as the original camera functions
+
+      // === CODE CAMERA (exact same as updateCodeCamera) ===
+      const scrollSpeed = params.codeScrollSpeed || 0.5;
+      const zoom = params.codeZoom || 1.5;
+      const sway = params.codeSway || 30;
+
+      codeScrollOffset += delta * scrollSpeed * 50;
+      if (codeScrollOffset > 600) codeScrollOffset = -100;
+
+      const codeDistance = 150 / zoom;
+      const swayX = Math.sin(codeScrollOffset * 0.01) * sway * 0.2;
+      const swayZ = Math.cos(codeScrollOffset * 0.008) * sway * 0.1;
+
+      const codeCamX = -80 + swayX;
+      const codeCamY = -codeScrollOffset + 100;
+      const codeCamZ = codeDistance + swayZ;
+      const codeLookX = codeCamX + 80;
+      const codeLookY = codeCamY;
+      const codeLookZ = 0;
+
+      // === UML CAMERA (exact same as updateCinematicCamera) ===
+      cameraTime += delta * params.cameraSpeed;
+      const umlPos = getCinematicPosition(cameraTime);
+      const umlCamX = umlPos.x;
+      const umlCamY = umlPos.y;
+      const umlCamZ = umlPos.z;
+      const umlLookX = 0;
+      const umlLookY = 0;
+      const umlLookZ = 0;
+
+      // Interpolate camera position and look-at based on morph progress
+      // easeT = 0 means UML particles (source), so use UML camera
+      // easeT = 1 means Code particles (target), so use Code camera
+      camera.position.x = umlCamX * (1 - easeT) + codeCamX * easeT;
+      camera.position.y = umlCamY * (1 - easeT) + codeCamY * easeT;
+      camera.position.z = umlCamZ * (1 - easeT) + codeCamZ * easeT;
+
+      const lookX = umlLookX * (1 - easeT) + codeLookX * easeT;
+      const lookY = umlLookY * (1 - easeT) + codeLookY * easeT;
+      const lookZ = umlLookZ * (1 - easeT) + codeLookZ * easeT;
+      camera.lookAt(lookX, lookY, lookZ);
+
+      // Interpolate FOV too
+      const umlFov = params.cameraFov || 50;
+      const codeFov = 50;
+      camera.fov = umlFov * (1 - easeT) + codeFov * easeT;
+      camera.updateProjectionMatrix();
+
+      // Fade connection lines based on morph progress
+      // Visible at UML (easeT=0), hidden at code (easeT=1)
+      connectionLines.forEach(line => {
+        if (line.material) {
+          line.material.opacity = 1 - easeT;
+          line.material.transparent = true;
+        }
+      });
+
+      // Apply film effects
+      renderFilmEffects();
     }
 
     document.querySelectorAll('.tab').forEach(tab => {
@@ -3992,7 +4580,9 @@ function animate() {
         // Glitch effect controls
         'glitchIntensity', 'glitchChance', 'glitchMaskScale', 'glitchSpeed', 'rgbSplit',
         // Code preview controls
-        'codeScrollSpeed', 'codeZoom', 'codeTilt', 'codeSway', 'codeDensity', 'codeZDepth', 'codeZSpread', 'codeFontSize', 'codeLineHeight',
+        'codeScrollSpeed', 'codeZoom', 'codeSway', 'codeDensity', 'codeZDepth',
+        // Morph preview controls
+        'morphProgress', 'morphSpeed',
         // Post effect controls
         'vignette',
       ];
@@ -4047,7 +4637,9 @@ function animate() {
         // Glitch effect controls
         'glitchIntensity', 'glitchChance', 'glitchMaskScale', 'glitchSpeed', 'rgbSplit',
         // Code preview controls
-        'codeScrollSpeed', 'codeZoom', 'codeTilt', 'codeSway', 'codeDensity', 'codeZDepth', 'codeZSpread', 'codeFontSize', 'codeLineHeight',
+        'codeScrollSpeed', 'codeZoom', 'codeSway', 'codeDensity', 'codeZDepth',
+        // Morph preview controls
+        'morphProgress', 'morphSpeed',
         // Post effect controls
         'vignette',
       ];
@@ -4123,6 +4715,14 @@ function animate() {
       document.getElementById('regenerateNoise')?.addEventListener('click', regenerateParticles);
       document.getElementById('regeneratePreview')?.addEventListener('click', regenerateParticles);
       document.getElementById('regenerateCode')?.addEventListener('click', regenerateCodeParticles);
+      document.getElementById('regenerateMorph')?.addEventListener('click', regenerateMorphParticles);
+
+      // Morph progress manual control
+      document.getElementById('morphProgress')?.addEventListener('input', (e) => {
+        params.morphProgress = parseFloat(e.target.value);
+        const valEl = document.getElementById('morphProgressVal');
+        if (valEl) valEl.textContent = params.morphProgress.toFixed(2);
+      });
 
       // Code file selector
       document.getElementById('codeFileSelect')?.addEventListener('change', async (e) => {
@@ -4418,6 +5018,48 @@ function animate() {
       }
     }
 
+    // Adaptive quality system - bidirectional, targets 60fps (Preview tab only)
+    let fpsHistory = [];
+    let lastQualityChange = 0;
+    const qualityChangeDelay = 2000;  // ms between quality changes
+
+    function applyPreviewQuality(multiplier) {
+      previewQualityMultiplier = Math.max(1, Math.min(multiplier, 5));  // Clamp 1-5
+
+      if (currentTab === 'morph-preview') {
+        console.log(`Preview quality: ${previewQualityMultiplier.toFixed(1)}x (effective density: ${getPreviewDensity().toFixed(2)})`);
+        regenerateMorphParticles();
+        fpsHistory = [];
+        lastQualityChange = performance.now();
+      }
+    }
+
+    function checkPerformance(fps) {
+      // Only run adaptive quality in Preview tab
+      if (currentTab !== 'morph-preview') {
+        fpsHistory = [];
+        return;
+      }
+
+      fpsHistory.push(fps);
+      if (fpsHistory.length > 60) fpsHistory.shift();
+
+      // Only check after we have enough samples and cooldown period
+      if (fpsHistory.length < 30) return;
+      if (performance.now() - lastQualityChange < qualityChangeDelay) return;
+
+      const avgFps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
+
+      // Target 55-65 FPS (hysteresis to avoid oscillation)
+      if (avgFps < 50 && previewQualityMultiplier < 5) {
+        // FPS too low, reduce quality
+        applyPreviewQuality(previewQualityMultiplier + 0.5);
+      } else if (avgFps > 65 && previewQualityMultiplier > 1) {
+        // FPS high enough, can increase quality
+        applyPreviewQuality(previewQualityMultiplier - 0.3);
+      }
+    }
+
     function animate() {
       requestAnimationFrame(animate);
 
@@ -4431,9 +5073,15 @@ function animate() {
         lastPreviewUpdate = now;
       }
 
+      const fps = Math.round(1 / delta);
       if (frameCount % 60 === 0) {
         const fpsEl = document.getElementById('previewFps');
-        if (fpsEl) fpsEl.textContent = `${Math.round(1 / delta)} fps`;
+        if (fpsEl) fpsEl.textContent = `${fps} fps`;
+      }
+
+      // Check performance and reduce quality if needed
+      if (frameCount % 10 === 0) {
+        checkPerformance(fps);
       }
 
       // Update cinematic camera for preview tab
@@ -4448,6 +5096,11 @@ function animate() {
         renderFilmEffects();
       }
 
+      // Update morph animation for morph-preview tab
+      if (currentTab === 'morph-preview') {
+        updateMorphAnimation(delta);
+      }
+
       // Update shader uniforms
       if (particles) {
         particles.material.uniforms.time.value += delta;
@@ -4456,6 +5109,11 @@ function animate() {
       // Update code particle uniforms
       if (codeParticleSystem && codeParticleSystem.material.uniforms) {
         codeParticleSystem.material.uniforms.time.value += delta;
+      }
+
+      // Update morph particle uniforms
+      if (morphParticleSystem && morphParticleSystem.material.uniforms) {
+        morphParticleSystem.material.uniforms.time.value += delta;
       }
 
       lastTime = now;
