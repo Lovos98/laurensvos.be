@@ -655,6 +655,7 @@
     <div id="tabs">
       <div class="tab active" data-tab="uml-generator">UML</div>
       <div class="tab" data-tab="noise-generator">Noise</div>
+      <div class="tab" data-tab="code-preview">Code</div>
       <div class="tab" data-tab="total-preview">Preview</div>
     </div>
 
@@ -810,6 +811,69 @@
         </div>
         <canvas id="noise-preview"></canvas>
       </div>
+    </div>
+
+    <!-- Code Preview Tab -->
+    <div class="tab-content" id="tab-code-preview">
+      <h3>Code Particles</h3>
+
+      <h4>Source Code</h4>
+      <div class="control-group">
+        <label>File</label>
+        <select id="codeFileSelect">
+          <option value="index">index.html (this file)</option>
+          <option value="server">server.js</option>
+          <option value="custom">Custom code...</option>
+        </select>
+      </div>
+
+      <div class="control-group" id="customCodeGroup" style="display: none;">
+        <textarea id="customCode" rows="8" placeholder="Paste your code here..." style="width: 100%; background: #1a1a1a; color: #e0e0e0; border: 1px solid #333; padding: 8px; font-family: monospace; font-size: 11px;"></textarea>
+      </div>
+
+      <h4>Camera Scroll</h4>
+      <div class="control-group">
+        <label>Scroll Speed <span class="value" id="codeScrollSpeedVal">0.5</span></label>
+        <input type="range" id="codeScrollSpeed" min="0" max="2" step="0.1" value="0.5">
+      </div>
+      <div class="control-group">
+        <label>Zoom (Macro) <span class="value" id="codeZoomVal">1.5</span></label>
+        <input type="range" id="codeZoom" min="0.5" max="4" step="0.1" value="1.5">
+      </div>
+      <div class="control-group">
+        <label>Tilt <span class="value" id="codeTiltVal">15</span></label>
+        <input type="range" id="codeTilt" min="0" max="45" step="5" value="15">
+      </div>
+      <div class="control-group">
+        <label>Sway Amount <span class="value" id="codeSwayVal">30</span></label>
+        <input type="range" id="codeSway" min="0" max="100" step="5" value="30">
+      </div>
+
+      <h4>Particles</h4>
+      <div class="control-group">
+        <label>Density <span class="value" id="codeDensityVal">0.8</span></label>
+        <input type="range" id="codeDensity" min="0.3" max="2" step="0.1" value="0.8">
+      </div>
+      <div class="control-group">
+        <label>Z Depth <span class="value" id="codeZDepthVal">20</span></label>
+        <input type="range" id="codeZDepth" min="0" max="100" step="5" value="20">
+      </div>
+      <div class="control-group">
+        <label>Z Spread <span class="value" id="codeZSpreadVal">0.5</span></label>
+        <input type="range" id="codeZSpread" min="0" max="1" step="0.1" value="0.5">
+      </div>
+
+      <h4>Code Style</h4>
+      <div class="control-group">
+        <label>Font Size <span class="value" id="codeFontSizeVal">14</span></label>
+        <input type="range" id="codeFontSize" min="10" max="24" step="1" value="14">
+      </div>
+      <div class="control-group">
+        <label>Line Height <span class="value" id="codeLineHeightVal">1.4</span></label>
+        <input type="range" id="codeLineHeight" min="1" max="2" step="0.1" value="1.4">
+      </div>
+
+      <button id="regenerateCode" style="width: 100%;">Regenerate Code Particles</button>
     </div>
 
     <!-- Total Preview Tab -->
@@ -979,6 +1043,16 @@
       glitchMaskScale: 0.008,
       glitchSpeed: 2.0,
       rgbSplit: 1.0,
+      // Code preview
+      codeScrollSpeed: 0.5,
+      codeZoom: 1.5,
+      codeTilt: 15,
+      codeSway: 30,
+      codeDensity: 0.8,
+      codeZDepth: 20,
+      codeZSpread: 0.5,
+      codeFontSize: 14,
+      codeLineHeight: 1.4,
       // Post effects
       vignette: 0.4,
       // Layout settings
@@ -2291,6 +2365,544 @@
       }
     }
 
+    // Syntax highlighting colors (VS Code dark theme inspired)
+    const syntaxColors = {
+      keyword: '#c586c0',      // purple/pink
+      function: '#dcdcaa',     // yellow
+      string: '#ce9178',       // orange
+      number: '#b5cea8',       // light green
+      comment: '#6a9955',      // green
+      operator: '#d4d4d4',     // white/gray
+      tag: '#569cd6',          // blue (HTML tags)
+      attribute: '#9cdcfe',    // light blue
+      punctuation: '#808080',  // gray
+      default: '#d4d4d4'       // white
+    };
+
+    // Simple syntax tokenizer
+    function tokenizeCode(code, language = 'javascript') {
+      const tokens = [];
+      const lines = code.split('\n');
+
+      const jsKeywords = /\b(function|const|let|var|if|else|return|for|while|class|extends|import|export|from|async|await|new|this|try|catch|throw|typeof|instanceof|null|undefined|true|false|break|continue|switch|case|default|static|get|set)\b/g;
+      const htmlTags = /<\/?([a-zA-Z][a-zA-Z0-9]*)/g;
+
+      lines.forEach((line, lineIndex) => {
+        let pos = 0;
+        const lineTokens = [];
+
+        // Check for comments
+        const commentMatch = line.match(/\/\/.*$|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/);
+        if (commentMatch && line.trim().startsWith('//') || line.trim().startsWith('<!--')) {
+          lineTokens.push({ text: line, color: syntaxColors.comment });
+          tokens.push(lineTokens);
+          return;
+        }
+
+        // Tokenize the line
+        let remaining = line;
+        while (remaining.length > 0) {
+          let matched = false;
+
+          // String literals
+          const stringMatch = remaining.match(/^(["'`])(?:(?!\1)[^\\]|\\.)*\1/);
+          if (stringMatch) {
+            lineTokens.push({ text: stringMatch[0], color: syntaxColors.string });
+            remaining = remaining.slice(stringMatch[0].length);
+            matched = true;
+            continue;
+          }
+
+          // Comments
+          const inlineComment = remaining.match(/^\/\/.*/);
+          if (inlineComment) {
+            lineTokens.push({ text: inlineComment[0], color: syntaxColors.comment });
+            remaining = '';
+            matched = true;
+            continue;
+          }
+
+          // Numbers
+          const numMatch = remaining.match(/^\b\d+\.?\d*\b/);
+          if (numMatch) {
+            lineTokens.push({ text: numMatch[0], color: syntaxColors.number });
+            remaining = remaining.slice(numMatch[0].length);
+            matched = true;
+            continue;
+          }
+
+          // HTML tags
+          const tagMatch = remaining.match(/^<\/?[a-zA-Z][a-zA-Z0-9]*/);
+          if (tagMatch) {
+            lineTokens.push({ text: tagMatch[0], color: syntaxColors.tag });
+            remaining = remaining.slice(tagMatch[0].length);
+            matched = true;
+            continue;
+          }
+
+          // Keywords
+          const wordMatch = remaining.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*/);
+          if (wordMatch) {
+            const word = wordMatch[0];
+            const isKeyword = /^(function|const|let|var|if|else|return|for|while|class|extends|import|export|from|async|await|new|this|try|catch|throw|typeof|instanceof|null|undefined|true|false|break|continue|switch|case|default|static|get|set)$/.test(word);
+            const isFunction = remaining.slice(word.length).match(/^\s*\(/);
+            lineTokens.push({
+              text: word,
+              color: isKeyword ? syntaxColors.keyword : (isFunction ? syntaxColors.function : syntaxColors.default)
+            });
+            remaining = remaining.slice(word.length);
+            matched = true;
+            continue;
+          }
+
+          // Operators and punctuation
+          const opMatch = remaining.match(/^[+\-*/%=<>!&|^~?:;,.()\[\]{}]+/);
+          if (opMatch) {
+            lineTokens.push({ text: opMatch[0], color: syntaxColors.punctuation });
+            remaining = remaining.slice(opMatch[0].length);
+            matched = true;
+            continue;
+          }
+
+          // Whitespace or single char
+          if (!matched) {
+            lineTokens.push({ text: remaining[0], color: syntaxColors.default });
+            remaining = remaining.slice(1);
+          }
+        }
+
+        tokens.push(lineTokens);
+      });
+
+      return tokens;
+    }
+
+    // Render syntax-highlighted code to canvas
+    let codeCanvas = null;
+    let codeParticles = null;
+    let currentCodeSource = '';
+
+    function createCodeTexture(code) {
+      if (!codeCanvas) {
+        codeCanvas = document.createElement('canvas');
+      }
+      const ctx = codeCanvas.getContext('2d');
+
+      const fontSize = params.codeFontSize || 14;
+      const lineHeight = (params.codeLineHeight || 1.4) * fontSize;
+      const padding = 20;
+      const lines = code.split('\n');
+      const maxLineLength = Math.max(...lines.map(l => l.length));
+
+      // Calculate canvas size
+      const charWidth = fontSize * 0.6; // Approximate monospace width
+      const canvasWidth = Math.max(800, maxLineLength * charWidth + padding * 2);
+      const canvasHeight = lines.length * lineHeight + padding * 2;
+
+      codeCanvas.width = canvasWidth;
+      codeCanvas.height = canvasHeight;
+
+      // Dark background
+      ctx.fillStyle = '#0d0d0d';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Tokenize and render
+      const tokens = tokenizeCode(code);
+      ctx.font = `${fontSize}px "SF Mono", "Monaco", "Inconsolata", "Fira Mono", monospace`;
+      ctx.textBaseline = 'top';
+
+      let y = padding;
+      tokens.forEach((lineTokens, lineIndex) => {
+        let x = padding;
+        lineTokens.forEach(token => {
+          ctx.fillStyle = token.color;
+          ctx.fillText(token.text, x, y);
+          x += ctx.measureText(token.text).width;
+        });
+        y += lineHeight;
+      });
+
+      return codeCanvas;
+    }
+
+    // Sample source code to display
+    const sampleCode = `// Particle-based UML Diagram Generator
+// Three.js + WebGL Shader Effects
+
+function createParticleSystem(singleNode = false) {
+  let allParticles = [];
+
+  // Generate pattern if not already done
+  if (!currentPattern) {
+    generatePattern();
+  }
+
+  const pattern = currentPattern;
+  const geometry = new THREE.BufferGeometry();
+
+  // Create particle attributes
+  const positions = new Float32Array(allParticles.length * 3);
+  const colors = new Float32Array(allParticles.length * 3);
+  const sizes = new Float32Array(allParticles.length);
+
+  allParticles.forEach((p, i) => {
+    positions[i * 3] = p.x;
+    positions[i * 3 + 1] = p.y;
+    positions[i * 3 + 2] = p.z;
+
+    colors[i * 3] = p.color.r;
+    colors[i * 3 + 1] = p.color.g;
+    colors[i * 3 + 2] = p.color.b;
+
+    sizes[i] = params.particleSize;
+  });
+
+  // Shader material with noise displacement
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { value: 0 },
+      noiseScale: { value: params.noiseScale },
+      glitchIntensity: { value: params.glitchIntensity }
+    },
+    vertexShader: \`
+      attribute float size;
+      varying vec3 vColor;
+
+      float snoise(vec3 v) {
+        // Simplex noise implementation
+        return fract(sin(dot(v, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
+      }
+
+      void main() {
+        vColor = color;
+        vec3 pos = position;
+
+        // Apply noise displacement
+        float noise = snoise(pos * noiseScale + time);
+        pos += noise * glitchIntensity;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        gl_PointSize = size;
+      }
+    \`,
+    fragmentShader: \`
+      varying vec3 vColor;
+
+      void main() {
+        float dist = length(gl_PointCoord - vec2(0.5));
+        if (dist > 0.5) discard;
+        gl_FragColor = vec4(vColor, 1.0);
+      }
+    \`
+  });
+
+  return new THREE.Points(geometry, material);
+}
+
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (particles && particles.material.uniforms) {
+    particles.material.uniforms.time.value += 0.016;
+  }
+
+  renderer.render(scene, camera);
+}`;
+
+    // Create code particle system
+    function createCodeParticleSystem() {
+      const code = currentCodeSource || sampleCode;
+      const canvas = createCodeTexture(code);
+
+      const particles = [];
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      const density = params.codeDensity || 0.8;
+      const zDepth = params.codeZDepth || 20;
+      const zSpread = params.codeZSpread || 0.5;
+      const scale = 0.5; // Scale down for 3D view
+
+      for (let y = 0; y < canvas.height; y += density) {
+        for (let x = 0; x < canvas.width; x += density) {
+          const i = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+
+          const brightness = (r + g + b) / 3;
+          if (brightness < 15) continue; // Skip dark pixels
+
+          // Z depth based on brightness and random spread
+          const baseZ = (brightness / 255) * zDepth * zSpread;
+          const randomZ = (Math.random() - 0.5) * zDepth * (1 - zSpread);
+
+          particles.push({
+            x: (x - canvas.width / 2) * scale,
+            y: (canvas.height / 2 - y) * scale, // Flip Y
+            z: baseZ + randomZ,
+            color: { r: r / 255, g: g / 255, b: b / 255 },
+            brightness: brightness / 255
+          });
+        }
+      }
+
+      console.log(`Created ${particles.length} code particles`);
+
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particles.length * 3);
+      const colors = new Float32Array(particles.length * 3);
+      const sizes = new Float32Array(particles.length);
+      const originals = new Float32Array(particles.length * 3);
+
+      particles.forEach((p, i) => {
+        positions[i * 3] = p.x;
+        positions[i * 3 + 1] = p.y;
+        positions[i * 3 + 2] = p.z;
+
+        originals[i * 3] = p.x;
+        originals[i * 3 + 1] = p.y;
+        originals[i * 3 + 2] = p.z;
+
+        colors[i * 3] = p.color.r;
+        colors[i * 3 + 1] = p.color.g;
+        colors[i * 3 + 2] = p.color.b;
+
+        sizes[i] = params.particleSize * 0.8 + p.brightness * 1.2;
+      });
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      geometry.setAttribute('original', new THREE.BufferAttribute(originals, 3));
+
+      // Use the same shader as the main particle system but with glitch enabled
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          pixelRatio: { value: renderer.getPixelRatio() },
+          noiseType: { value: 1 },
+          noiseScale: { value: params.noiseScale },
+          noiseSpeed: { value: params.noiseSpeed },
+          displacementXY: { value: params.displacementXY },
+          displacementZ: { value: params.displacementZ },
+          blockSize: { value: params.blockSize },
+          turbulence: { value: params.turbulence },
+          lacunarity: { value: params.lacunarity },
+          persistence: { value: params.persistence },
+          sharpness: { value: params.sharpness },
+          contrast: { value: params.contrast },
+          particleSizeMultiplier: { value: params.particleSizeMultiplier || 1 },
+          particleOpacity: { value: params.particleOpacity },
+          activatorPositions: { value: new Float32Array(30) },
+          activatorCount: { value: 0 },
+          activationRadius: { value: params.activationRadius },
+          falloff: { value: params.falloff },
+          useNoise: { value: true },
+          useActivation: { value: true }, // Enable glitch for code view
+          glitchIntensity: { value: params.glitchIntensity || 1.0 },
+          glitchChance: { value: params.glitchChance || 0.3 },
+          glitchMaskScale: { value: params.glitchMaskScale || 0.01 },
+          glitchSpeed: { value: params.glitchSpeed || 2.0 },
+          rgbSplit: { value: params.rgbSplit || 1.0 }
+        },
+        vertexShader: document.getElementById('codeVertexShader')?.textContent || getCodeVertexShader(),
+        fragmentShader: document.getElementById('codeFragmentShader')?.textContent || getCodeFragmentShader(),
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        vertexColors: true
+      });
+
+      return new THREE.Points(geometry, material);
+    }
+
+    // Get vertex shader (same as main but without dependency on createParticleSystem)
+    function getCodeVertexShader() {
+      return `
+        attribute float size;
+        attribute vec3 original;
+        varying vec3 vColor;
+        varying float vActivation;
+        varying float vRgbOffset;
+        uniform float time;
+        uniform float pixelRatio;
+        uniform int noiseType;
+        uniform float noiseScale;
+        uniform float noiseSpeed;
+        uniform float displacementXY;
+        uniform float displacementZ;
+        uniform float blockSize;
+        uniform int turbulence;
+        uniform float lacunarity;
+        uniform float persistence;
+        uniform float sharpness;
+        uniform float contrast;
+        uniform float particleSizeMultiplier;
+        uniform bool useNoise;
+        uniform bool useActivation;
+        uniform float glitchIntensity;
+        uniform float glitchChance;
+        uniform float glitchMaskScale;
+        uniform float glitchSpeed;
+        uniform float rgbSplit;
+
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+        vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+        float snoise(vec3 v) {
+          const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+          const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+          vec3 i = floor(v + dot(v, C.yyy));
+          vec3 x0 = v - i + dot(i, C.xxx);
+          vec3 g = step(x0.yzx, x0.xyz);
+          vec3 l = 1.0 - g;
+          vec3 i1 = min(g.xyz, l.zxy);
+          vec3 i2 = max(g.xyz, l.zxy);
+          vec3 x1 = x0 - i1 + C.xxx;
+          vec3 x2 = x0 - i2 + C.yyy;
+          vec3 x3 = x0 - D.yyy;
+          i = mod289(i);
+          vec4 p = permute(permute(permute(
+              i.z + vec4(0.0, i1.z, i2.z, 1.0))
+            + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+            + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+          float n_ = 0.142857142857;
+          vec3 ns = n_ * D.wyz - D.xzx;
+          vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+          vec4 x_ = floor(j * ns.z);
+          vec4 y_ = floor(j - 7.0 * x_);
+          vec4 x = x_ * ns.x + ns.yyyy;
+          vec4 y = y_ * ns.x + ns.yyyy;
+          vec4 h = 1.0 - abs(x) - abs(y);
+          vec4 b0 = vec4(x.xy, y.xy);
+          vec4 b1 = vec4(x.zw, y.zw);
+          vec4 s0 = floor(b0)*2.0 + 1.0;
+          vec4 s1 = floor(b1)*2.0 + 1.0;
+          vec4 sh = -step(h, vec4(0.0));
+          vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+          vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+          vec3 p0 = vec3(a0.xy, h.x);
+          vec3 p1 = vec3(a0.zw, h.y);
+          vec3 p2 = vec3(a1.xy, h.z);
+          vec3 p3 = vec3(a1.zw, h.w);
+          vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+          p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+          vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+          m = m * m;
+          return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+        }
+
+        float getActivation() {
+          if (!useActivation) return 1.0;
+
+          vec3 spatialCoord = original * glitchMaskScale;
+          spatialCoord += vec3(
+            sin(time * 0.2) * 20.0 + cos(time * 0.15) * 15.0,
+            cos(time * 0.17) * 18.0 + sin(time * 0.23) * 12.0,
+            sin(time * 0.13) * 10.0
+          );
+          float spatialNoise = snoise(spatialCoord);
+
+          float holdTime = 0.3;
+          float quantizedTime = floor(time / holdTime) * holdTime;
+          vec3 temporalCoord = vec3(
+            quantizedTime * glitchSpeed + original.x * 0.002,
+            quantizedTime * glitchSpeed * 1.3 + original.y * 0.002,
+            original.z * 0.01
+          );
+          float temporalNoise = snoise(temporalCoord);
+
+          float spatialThreshold = 1.0 - glitchChance * 1.5;
+          float temporalThreshold = 0.5;
+
+          if (spatialNoise < spatialThreshold) return 0.0;
+          if (temporalNoise < temporalThreshold) return 0.0;
+
+          float spatialStrength = (spatialNoise - spatialThreshold) / max(1.0 - spatialThreshold, 0.01);
+          float temporalStrength = (temporalNoise - temporalThreshold) / (1.0 - temporalThreshold);
+
+          float activation = spatialStrength * temporalStrength;
+          activation = smoothstep(0.0, 0.3, activation);
+
+          return activation * glitchIntensity;
+        }
+
+        void main() {
+          vColor = color;
+          vec3 pos = position;
+
+          float activation = getActivation();
+          vActivation = activation;
+
+          if (useNoise) {
+            vec3 noiseCoord = vec3(
+              original.x * noiseScale,
+              original.y * noiseScale,
+              original.z * noiseScale * 0.3 + time * noiseSpeed
+            );
+
+            float noiseX = snoise(noiseCoord);
+            float noiseY = snoise(noiseCoord + vec3(100.0, 50.0, 25.0));
+            float noiseZ = snoise(noiseCoord + vec3(200.0, 150.0, 75.0));
+
+            pos.x += noiseX * displacementXY * activation;
+            pos.y += noiseY * displacementXY * activation;
+            pos.z += noiseZ * displacementZ * activation;
+
+            float brightness = (color.r + color.g + color.b) / 3.0;
+            float sortStreak = brightness * activation * rgbSplit * 3.0;
+            pos.x += sortStreak;
+          }
+
+          vRgbOffset = activation * rgbSplit * 0.02;
+
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = size * pixelRatio * particleSizeMultiplier * (300.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `;
+    }
+
+    function getCodeFragmentShader() {
+      return `
+        varying vec3 vColor;
+        varying float vActivation;
+        varying float vRgbOffset;
+        uniform float particleOpacity;
+
+        void main() {
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
+          if (dist > 0.5) discard;
+
+          float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
+
+          vec3 finalColor = vColor;
+          if (vRgbOffset > 0.001) {
+            float redShift = center.x * vRgbOffset * 20.0;
+            float blueShift = -center.x * vRgbOffset * 20.0;
+
+            finalColor.r = vColor.r * (1.0 + redShift);
+            finalColor.g = vColor.g;
+            finalColor.b = vColor.b * (1.0 + blueShift);
+
+            float edgeFactor = smoothstep(0.2, 0.5, dist);
+            finalColor.r += edgeFactor * vRgbOffset * 2.0;
+            finalColor.b += edgeFactor * vRgbOffset * 1.5;
+          }
+
+          finalColor *= (1.0 + vActivation * 0.3);
+
+          gl_FragColor = vec4(finalColor, alpha * particleOpacity);
+        }
+      `;
+    }
+
     // Render UML node to canvas
     function createUMLTexture(node) {
       const canvas = document.getElementById('text-canvas');
@@ -3002,6 +3614,14 @@
         particles = null;
       }
 
+      // Clean up code particles if switching from code view
+      if (codeParticleSystem) {
+        scene.remove(codeParticleSystem);
+        codeParticleSystem.geometry.dispose();
+        codeParticleSystem.material.dispose();
+        codeParticleSystem = null;
+      }
+
       // Clean up old connection lines
       connectionLines.forEach(line => {
         scene.remove(line);
@@ -3269,15 +3889,85 @@
       // Clear selection when switching tabs
       selectedNodeId = null;
 
-      // Only regenerate particles for noise/preview tabs
-      if (tabId !== 'uml-generator') {
-        regenerateParticles();
-      } else {
+      // Handle different tabs
+      if (tabId === 'uml-generator') {
         // Update UML editor when switching to UML tab
         if (currentPattern) {
           updateUmlFromPattern();
         }
+      } else if (tabId === 'code-preview') {
+        // Create code particles
+        regenerateCodeParticles();
+      } else if (tabId !== 'uml-generator') {
+        regenerateParticles();
       }
+    }
+
+    // Code particles state
+    let codeParticleSystem = null;
+    let codeScrollOffset = 0;
+
+    function regenerateCodeParticles() {
+      // Remove existing code particles
+      if (codeParticleSystem) {
+        scene.remove(codeParticleSystem);
+        codeParticleSystem.geometry.dispose();
+        codeParticleSystem.material.dispose();
+        codeParticleSystem = null;
+      }
+
+      // Remove UML particles when in code view
+      if (particles) {
+        scene.remove(particles);
+      }
+
+      // Create new code particle system
+      codeParticleSystem = createCodeParticleSystem();
+      scene.add(codeParticleSystem);
+
+      // Reset scroll
+      codeScrollOffset = 0;
+    }
+
+    // Update code camera - dolly slide next to the code
+    function updateCodeCamera(delta) {
+      if (!codeParticleSystem) return;
+
+      const scrollSpeed = params.codeScrollSpeed || 0.5;
+      const zoom = params.codeZoom || 1.5;
+      const tilt = (params.codeTilt || 15) * Math.PI / 180;
+      const sway = params.codeSway || 30;
+
+      // Scroll downward through code
+      codeScrollOffset += delta * scrollSpeed * 50;
+
+      // Get code bounds (approximate)
+      const codeHeight = 2000;
+      if (codeScrollOffset > codeHeight) {
+        codeScrollOffset = -500;
+      }
+
+      // Dolly slide - camera positioned to the side, looking at the code
+      const baseDistance = 200 / zoom;
+
+      // Gentle sway perpendicular to view direction
+      const swayAmount = Math.sin(codeScrollOffset * 0.008) * sway * 0.3;
+
+      // Camera positioned to the left/right of center, sliding down
+      const cameraOffsetX = -150; // Offset to the left of the code
+      camera.position.x = cameraOffsetX + swayAmount;
+      camera.position.y = -codeScrollOffset + 200;
+      camera.position.z = baseDistance;
+
+      // Look at the code (to the right of camera)
+      const lookAtX = 50; // Look toward the center-right of code
+      const lookAtY = -codeScrollOffset + 150;
+      camera.lookAt(lookAtX, lookAtY, 0);
+
+      // Subtle tilt for cinematic feel
+      camera.rotation.z = tilt * 0.5 + Math.sin(codeScrollOffset * 0.003) * 0.05;
+
+      camera.updateProjectionMatrix();
     }
 
     document.querySelectorAll('.tab').forEach(tab => {
@@ -3301,6 +3991,8 @@
         'filmGrain', 'grainRoughness', 'grainSize',
         // Glitch effect controls
         'glitchIntensity', 'glitchChance', 'glitchMaskScale', 'glitchSpeed', 'rgbSplit',
+        // Code preview controls
+        'codeScrollSpeed', 'codeZoom', 'codeTilt', 'codeSway', 'codeDensity', 'codeZDepth', 'codeZSpread', 'codeFontSize', 'codeLineHeight',
         // Post effect controls
         'vignette',
       ];
@@ -3354,6 +4046,8 @@
         'filmGrain', 'grainRoughness', 'grainSize',
         // Glitch effect controls
         'glitchIntensity', 'glitchChance', 'glitchMaskScale', 'glitchSpeed', 'rgbSplit',
+        // Code preview controls
+        'codeScrollSpeed', 'codeZoom', 'codeTilt', 'codeSway', 'codeDensity', 'codeZDepth', 'codeZSpread', 'codeFontSize', 'codeLineHeight',
         // Post effect controls
         'vignette',
       ];
@@ -3428,6 +4122,37 @@
 
       document.getElementById('regenerateNoise')?.addEventListener('click', regenerateParticles);
       document.getElementById('regeneratePreview')?.addEventListener('click', regenerateParticles);
+      document.getElementById('regenerateCode')?.addEventListener('click', regenerateCodeParticles);
+
+      // Code file selector
+      document.getElementById('codeFileSelect')?.addEventListener('change', async (e) => {
+        const customGroup = document.getElementById('customCodeGroup');
+        if (e.target.value === 'custom') {
+          customGroup.style.display = 'block';
+        } else {
+          customGroup.style.display = 'none';
+          // Load the selected file
+          if (e.target.value === 'index') {
+            // Use sample code (represents this file)
+            currentCodeSource = sampleCode;
+          } else if (e.target.value === 'server') {
+            try {
+              const response = await fetch('/server.js');
+              currentCodeSource = await response.text();
+            } catch (err) {
+              currentCodeSource = '// Could not load server.js\n// Make sure the server is running';
+            }
+          }
+          if (currentTab === 'code-preview') {
+            regenerateCodeParticles();
+          }
+        }
+      });
+
+      // Custom code textarea
+      document.getElementById('customCode')?.addEventListener('input', (e) => {
+        currentCodeSource = e.target.value;
+      });
 
       // Save buttons - save to values.json on disk
       document.getElementById('saveNoiseSettings')?.addEventListener('click', () => {
@@ -3717,9 +4442,20 @@
         renderFilmEffects();
       }
 
+      // Update code camera for code-preview tab
+      if (currentTab === 'code-preview') {
+        updateCodeCamera(delta);
+        renderFilmEffects();
+      }
+
       // Update shader uniforms
       if (particles) {
         particles.material.uniforms.time.value += delta;
+      }
+
+      // Update code particle uniforms
+      if (codeParticleSystem && codeParticleSystem.material.uniforms) {
+        codeParticleSystem.material.uniforms.time.value += delta;
       }
 
       lastTime = now;
