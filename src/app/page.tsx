@@ -4,33 +4,62 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/context/ThemeContext";
 import CareerTimeline from "@/components/CareerTimeline";
+import {
+  SiPython, SiTypescript, SiJavascript,
+  SiReact, SiTailwindcss, SiVite, SiNextdotjs, SiDotnet,
+  SiDocker, SiJenkins, SiGit, SiBitbucket, SiSonarqube, SiKubernetes,
+  SiApple, SiLinux, SiUnraid,
+} from "react-icons/si";
+import { FaJava, FaWindows } from "react-icons/fa6";
+import { TbBrandCSharp } from "react-icons/tb";
+import type { IconType } from "react-icons";
 
 const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), {
   ssr: false,
 });
 
-const skillCategories = {
-  languages: {
-    name: "Languages",
-    skills: ["C#", "Python", "Java", "TypeScript", "JavaScript"],
+const techStack: { category: string; items: { name: string; icon: IconType; color: string }[] }[] = [
+  {
+    category: "Languages",
+    items: [
+      { name: "C#", icon: TbBrandCSharp, color: "#68217a" },
+      { name: "Python", icon: SiPython, color: "#3776ab" },
+      { name: "Java", icon: FaJava, color: "#ea2d2e" },
+      { name: "TypeScript", icon: SiTypescript, color: "#3178c6" },
+      { name: "JavaScript", icon: SiJavascript, color: "#f7df1e" },
+    ],
   },
-  frameworks: {
-    name: "Frameworks",
-    skills: ["React", "Tailwind", "Vite", "Next.js", ".NET", "Entity Framework"],
+  {
+    category: "Frameworks",
+    items: [
+      { name: "React", icon: SiReact, color: "#61dafb" },
+      { name: "Next.js", icon: SiNextdotjs, color: "#ffffff" },
+      { name: ".NET", icon: SiDotnet, color: "#512bd4" },
+      { name: "Tailwind", icon: SiTailwindcss, color: "#06b6d4" },
+      { name: "Vite", icon: SiVite, color: "#646cff" },
+    ],
   },
-  devops: {
-    name: "DevOps",
-    skills: ["Docker", "Jenkins", "Git", "Bitbucket", "SonarQube", "Kubernetes"],
+  {
+    category: "DevOps",
+    items: [
+      { name: "Docker", icon: SiDocker, color: "#2496ed" },
+      { name: "Kubernetes", icon: SiKubernetes, color: "#326ce5" },
+      { name: "Jenkins", icon: SiJenkins, color: "#d24939" },
+      { name: "Git", icon: SiGit, color: "#f05032" },
+      { name: "Bitbucket", icon: SiBitbucket, color: "#0052cc" },
+      { name: "SonarQube", icon: SiSonarqube, color: "#4e9bcd" },
+    ],
   },
-  agile: {
-    name: "Methodology",
-    skills: ["SAFe", "Agile", "Scrum", "Lean"],
+  {
+    category: "Infrastructure",
+    items: [
+      { name: "Linux", icon: SiLinux, color: "#fcc624" },
+      { name: "Windows", icon: FaWindows, color: "#0078d4" },
+      { name: "macOS", icon: SiApple, color: "#ffffff" },
+      { name: "Unraid", icon: SiUnraid, color: "#f15a2c" },
+    ],
   },
-  infrastructure: {
-    name: "Infrastructure",
-    skills: ["Windows", "MacOS", "Linux", "Unraid", "ZFS"],
-  },
-};
+];
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
@@ -143,21 +172,30 @@ export default function Home() {
             <p className="text-text-secondary">Technologies I work with daily.</p>
           </div>
 
-          <div className="space-y-6">
-            {Object.entries(skillCategories).map(([key, category]) => (
-              <div key={key} className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider w-24 shrink-0">
-                  {category.name}
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1.5 border border-border bg-bg-node/50 backdrop-blur-sm rounded-lg text-sm font-medium text-text-secondary transition-all hover:border-accent hover:text-accent"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+          <div className="border border-border rounded-xl bg-bg-node/30 backdrop-blur-sm p-6 sm:p-8 space-y-8">
+            {techStack.map((group) => (
+              <div key={group.category}>
+                <p className="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-4">
+                  {group.category}
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                  {group.items.map((tech) => {
+                    const Icon = tech.icon;
+                    return (
+                      <div
+                        key={tech.name}
+                        className="group flex flex-col items-center gap-2 p-4 border border-border rounded-lg bg-bg-node/50 transition-all hover:border-accent hover:shadow-[0_0_12px_var(--accent-glow)]"
+                      >
+                        <Icon
+                          className="w-8 h-8 text-text-tertiary transition-colors group-hover:text-[var(--icon-color)]"
+                          style={{ "--icon-color": tech.color } as React.CSSProperties}
+                        />
+                        <span className="text-xs font-medium text-text-secondary text-center">
+                          {tech.name}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
