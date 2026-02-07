@@ -13,17 +13,45 @@ const ParticleBackground = dynamic(() => import("@/components/ParticleBackground
 const projects = [
   {
     name: "Rofox",
-    description: "A young Belgian tech startup building software that matters. Co-founded with Davey Verleg, developing innovative solutions including CodeGraph, a cohousing platform, and Lovos Media Manager.",
+    description: "Belgian tech startup I co-founded with Davey Verleg. Building software that matters - from code visualization to housing platforms.",
     url: "https://rofox.be",
     gradient: "from-orange-500 via-red-500 to-purple-600",
-    tags: ["Startup", "Next.js", "TypeScript", "Supabase"],
+    tags: ["Startup", "Next.js", "TypeScript"],
+  },
+  {
+    name: "Convivo",
+    description: "AI-powered cohousing platform matching landlords and tenants based on compatibility. Making shared living easier.",
+    url: "https://convivo.rofox.be",
+    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    tags: ["AI", "Matching", "Next.js", "Supabase"],
+  },
+  {
+    name: "CodeGraph",
+    description: "Interactive 3D code visualization tool. Transform codebases into explorable graphs with impact analysis and AI queries.",
+    url: "https://codegraph.rofox.be",
+    gradient: "from-cyan-500 via-blue-500 to-indigo-500",
+    tags: [".NET", "Neo4j", "Three.js", "Roslyn"],
   },
   {
     name: "Lovos Media",
-    description: "Professional photography business specializing in event and wedding photography. Built a complete media management platform for organizing, sharing, and delivering photos to clients.",
+    description: "My photography business for events and weddings. Professional media services with a personal touch.",
     url: "https://lovosmedia.com",
     gradient: "from-amber-500 via-orange-500 to-red-500",
-    tags: ["Photography", "Tauri", "React", "Desktop App"],
+    tags: ["Photography", "Events", "Weddings"],
+  },
+  {
+    name: "Arxis",
+    description: "Desktop media manager for photographers. Organize, sort, and prepare photos across multiple storage locations.",
+    url: "https://mediamanager.rofox.be",
+    gradient: "from-neutral-400 via-zinc-500 to-neutral-600",
+    tags: ["Tauri", "React", "Desktop", "Rust"],
+  },
+  {
+    name: "Memora",
+    description: "Private photo sharing platform. Deliver galleries to clients with ZIP downloads and beautiful presentations.",
+    url: "https://mediamanager.rofox.be",
+    gradient: "from-rose-400 via-pink-500 to-fuchsia-500",
+    tags: ["Next.js", "Supabase", "S3", "SaaS"],
   },
 ];
 
@@ -151,7 +179,7 @@ export default function Home() {
             <p className="text-text-secondary">Personal ventures and projects I actively maintain.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {projects.map((project) => (
               <a
                 key={project.name}

@@ -1,178 +1,159 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import {
-  SiPython, SiTypescript, SiJavascript,
-  SiReact, SiTailwindcss, SiVite, SiNextdotjs, SiDotnet,
-  SiDocker, SiJenkins, SiGit, SiBitbucket, SiSonarqube, SiKubernetes,
-  SiApple, SiLinux, SiUnraid,
-} from "react-icons/si";
-import { FaJava, FaWindows } from "react-icons/fa6";
-import { TbBrandCSharp } from "react-icons/tb";
-import type { IconType } from "react-icons";
+import { useRef, useState, Suspense } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, RoundedBox, Text, Float } from "@react-three/drei";
+import * as THREE from "three";
 
-interface TechItem {
-  name: string;
-  icon: IconType;
-  color: string;
-}
-
-const allTech: TechItem[] = [
-  // Languages
-  { name: "C#", icon: TbBrandCSharp, color: "#68217a" },
-  { name: "Python", icon: SiPython, color: "#3776ab" },
-  { name: "Java", icon: FaJava, color: "#ea2d2e" },
-  { name: "TypeScript", icon: SiTypescript, color: "#3178c6" },
-  { name: "JavaScript", icon: SiJavascript, color: "#f7df1e" },
-  // Frameworks
-  { name: "React", icon: SiReact, color: "#61dafb" },
-  { name: "Next.js", icon: SiNextdotjs, color: "#ffffff" },
-  { name: ".NET", icon: SiDotnet, color: "#512bd4" },
-  { name: "Tailwind", icon: SiTailwindcss, color: "#06b6d4" },
-  { name: "Vite", icon: SiVite, color: "#646cff" },
-  // DevOps
-  { name: "Docker", icon: SiDocker, color: "#2496ed" },
-  { name: "Kubernetes", icon: SiKubernetes, color: "#326ce5" },
-  { name: "Jenkins", icon: SiJenkins, color: "#d24939" },
-  { name: "Git", icon: SiGit, color: "#f05032" },
-  { name: "Bitbucket", icon: SiBitbucket, color: "#0052cc" },
-  { name: "SonarQube", icon: SiSonarqube, color: "#4e9bcd" },
-  // Infrastructure
-  { name: "Linux", icon: SiLinux, color: "#fcc624" },
-  { name: "Windows", icon: FaWindows, color: "#0078d4" },
-  { name: "macOS", icon: SiApple, color: "#a3a3a3" },
-  { name: "Unraid", icon: SiUnraid, color: "#f15a2c" },
+// Tech items with colors
+const techItems = [
+  { name: "C#", color: "#68217a" },
+  { name: "Python", color: "#3776ab" },
+  { name: "TypeScript", color: "#3178c6" },
+  { name: "React", color: "#61dafb" },
+  { name: "Next.js", color: "#ffffff" },
+  { name: ".NET", color: "#512bd4" },
+  { name: "Docker", color: "#2496ed" },
+  { name: "Git", color: "#f05032" },
 ];
 
-export default function TechStack3D() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [hoveredTech, setHoveredTech] = useState<string | null>(null);
+function TechCube({ position, tech, isActive, onClick }: {
+  position: [number, number, number];
+  tech: { name: string; color: string };
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [hovered, setHovered] = useState(false);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-      const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-      setMousePos({ x: x * 15, y: y * -15 });
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("mousemove", handleMouseMove);
-      return () => container.removeEventListener("mousemove", handleMouseMove);
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    // Gentle floating animation
+    meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime + position[0]) * 0.1;
+    // Slow rotation
+    meshRef.current.rotation.y += 0.005;
+    if (isActive) {
+      meshRef.current.rotation.x += 0.01;
     }
-  }, []);
+  });
 
   return (
-    <div
-      ref={containerRef}
-      className="relative"
-      style={{ perspective: "1000px" }}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => {
-        setIsHovering(false);
-        setMousePos({ x: 0, y: 0 });
-      }}
-    >
-      {/* 3D Container */}
-      <div
-        className="border border-border rounded-2xl bg-bg-node/30 backdrop-blur-sm p-8 transition-transform duration-300 ease-out"
-        style={{
-          transform: isHovering
-            ? `rotateX(${mousePos.y}deg) rotateY(${mousePos.x}deg)`
-            : "rotateX(0deg) rotateY(0deg)",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        {/* Glowing background effect */}
-        <div
-          className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 pointer-events-none"
-          style={{
-            background: `radial-gradient(circle at ${50 + mousePos.x * 2}% ${50 - mousePos.y * 2}%, var(--accent-glow) 0%, transparent 50%)`,
-            opacity: isHovering ? 1 : 0,
-          }}
+    <Float speed={2} rotationIntensity={0.2} floatIntensity={0.3}>
+      <group position={position}>
+        <RoundedBox
+          ref={meshRef}
+          args={[1, 1, 1]}
+          radius={0.1}
+          smoothness={4}
+          onClick={onClick}
+          onPointerOver={() => setHovered(true)}
+          onPointerOut={() => setHovered(false)}
+        >
+          <meshStandardMaterial
+            color={hovered || isActive ? tech.color : "#1a1a1a"}
+            emissive={tech.color}
+            emissiveIntensity={hovered || isActive ? 0.5 : 0.1}
+            metalness={0.8}
+            roughness={0.2}
+          />
+        </RoundedBox>
+        {/* Tech name floating above */}
+        <Text
+          position={[0, 0.8, 0]}
+          fontSize={0.25}
+          color={hovered || isActive ? tech.color : "#666666"}
+          anchorX="center"
+          anchorY="middle"
+          font="/fonts/inter-medium.woff"
+        >
+          {tech.name}
+        </Text>
+        {/* Glow effect when active */}
+        {(hovered || isActive) && (
+          <pointLight
+            position={[0, 0, 0]}
+            color={tech.color}
+            intensity={2}
+            distance={3}
+          />
+        )}
+      </group>
+    </Float>
+  );
+}
+
+function Scene() {
+  const [activeTech, setActiveTech] = useState<number | null>(null);
+
+  // Arrange cubes in a grid
+  const positions: [number, number, number][] = [
+    [-2.5, 0.5, 0],
+    [-0.8, 0.5, 0],
+    [0.8, 0.5, 0],
+    [2.5, 0.5, 0],
+    [-2.5, -1, 0],
+    [-0.8, -1, 0],
+    [0.8, -1, 0],
+    [2.5, -1, 0],
+  ];
+
+  return (
+    <>
+      {/* Ambient and directional lighting */}
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[10, 10, 5]} intensity={1} />
+      <directionalLight position={[-10, -10, -5]} intensity={0.5} color="#d4a855" />
+
+      {/* Tech cubes */}
+      {techItems.map((tech, i) => (
+        <TechCube
+          key={tech.name}
+          position={positions[i]}
+          tech={tech}
+          isActive={activeTech === i}
+          onClick={() => setActiveTech(activeTech === i ? null : i)}
         />
+      ))}
 
-        {/* Grid of tech icons */}
-        <div className="relative grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-10 gap-4">
-          {allTech.map((tech, index) => {
-            const Icon = tech.icon;
-            const isHovered = hoveredTech === tech.name;
-            // Calculate depth based on position for 3D effect
-            const row = Math.floor(index / 10);
-            const col = index % 10;
-            const depth = 20 + (row * 5) + (col * 2);
+      {/* Camera controls */}
+      <OrbitControls
+        enableZoom={false}
+        enablePan={false}
+        minPolarAngle={Math.PI / 3}
+        maxPolarAngle={Math.PI / 2}
+        autoRotate
+        autoRotateSpeed={0.5}
+      />
+    </>
+  );
+}
 
-            return (
-              <div
-                key={tech.name}
-                className="group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-300 cursor-pointer"
-                style={{
-                  transform: `translateZ(${isHovered ? depth + 30 : depth}px)`,
-                  transformStyle: "preserve-3d",
-                }}
-                onMouseEnter={() => setHoveredTech(tech.name)}
-                onMouseLeave={() => setHoveredTech(null)}
-              >
-                {/* Glow effect behind icon */}
-                <div
-                  className="absolute inset-0 rounded-xl transition-all duration-300"
-                  style={{
-                    background: isHovered ? `radial-gradient(circle, ${tech.color}40 0%, transparent 70%)` : "transparent",
-                    boxShadow: isHovered ? `0 0 30px ${tech.color}60, 0 0 60px ${tech.color}30` : "none",
-                  }}
-                />
+export default function TechStack3D() {
+  return (
+    <div className="relative w-full h-[500px] rounded-2xl border border-border bg-bg-node/30 backdrop-blur-sm overflow-hidden">
+      {/* Gradient overlay at edges */}
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-bg-primary/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-bg-primary/80 to-transparent" />
+      </div>
 
-                {/* Icon */}
-                <div
-                  className="relative z-10 p-3 rounded-lg border border-border bg-bg-node/80 transition-all duration-300"
-                  style={{
-                    borderColor: isHovered ? tech.color : undefined,
-                    boxShadow: isHovered ? `0 0 20px ${tech.color}50` : undefined,
-                    transform: isHovered ? "scale(1.15)" : "scale(1)",
-                  }}
-                >
-                  <Icon
-                    className="w-7 h-7 sm:w-8 sm:h-8 transition-colors duration-300"
-                    style={{ color: isHovered ? tech.color : "var(--text-tertiary)" }}
-                  />
-                </div>
-
-                {/* Label - appears on hover */}
-                <span
-                  className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap transition-all duration-300 z-20"
-                  style={{
-                    opacity: isHovered ? 1 : 0,
-                    transform: `translateX(-50%) translateY(${isHovered ? 0 : -10}px)`,
-                    color: tech.color,
-                    textShadow: `0 0 10px ${tech.color}`,
-                  }}
-                >
-                  {tech.name}
-                </span>
-              </div>
-            );
-          })}
+      <Suspense fallback={
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-text-tertiary">Loading 3D scene...</div>
         </div>
+      }>
+        <Canvas
+          camera={{ position: [0, 0, 8], fov: 45 }}
+          gl={{ antialias: true, alpha: true }}
+          style={{ background: "transparent" }}
+        >
+          <Scene />
+        </Canvas>
+      </Suspense>
 
-        {/* Floating particles effect */}
-        <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-accent/30 animate-float"
-              style={{
-                left: `${10 + i * 12}%`,
-                top: `${20 + (i % 3) * 25}%`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: `${3 + i * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
+      {/* Instructions */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-text-tertiary z-20">
+        Drag to rotate • Click cubes to highlight
       </div>
     </div>
   );
