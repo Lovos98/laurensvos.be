@@ -63,6 +63,18 @@ body {
   animation: gradient-shift 6s ease infinite;
 }
 
+/* Floating animation for particles */
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+  25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+  50% { transform: translateY(-10px) translateX(-5px); opacity: 0.4; }
+  75% { transform: translateY(-25px) translateX(5px); opacity: 0.5; }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
 /* Selection styling */
 ::selection {
   background: var(--accent);

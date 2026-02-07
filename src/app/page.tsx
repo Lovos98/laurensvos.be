@@ -4,60 +4,26 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/context/ThemeContext";
 import CareerTimeline from "@/components/CareerTimeline";
-import {
-  SiPython, SiTypescript, SiJavascript,
-  SiReact, SiTailwindcss, SiVite, SiNextdotjs, SiDotnet,
-  SiDocker, SiJenkins, SiGit, SiBitbucket, SiSonarqube, SiKubernetes,
-  SiApple, SiLinux, SiUnraid,
-} from "react-icons/si";
-import { FaJava, FaWindows } from "react-icons/fa6";
-import { TbBrandCSharp } from "react-icons/tb";
-import type { IconType } from "react-icons";
+import TechStack3D from "@/components/TechStack3D";
 
 const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), {
   ssr: false,
 });
 
-const techStack: { category: string; items: { name: string; icon: IconType; color: string }[] }[] = [
+const projects = [
   {
-    category: "Languages",
-    items: [
-      { name: "C#", icon: TbBrandCSharp, color: "#68217a" },
-      { name: "Python", icon: SiPython, color: "#3776ab" },
-      { name: "Java", icon: FaJava, color: "#ea2d2e" },
-      { name: "TypeScript", icon: SiTypescript, color: "#3178c6" },
-      { name: "JavaScript", icon: SiJavascript, color: "#f7df1e" },
-    ],
+    name: "Rofox",
+    description: "A young Belgian tech startup building software that matters. Co-founded with Davey Verleg, developing innovative solutions including CodeGraph, a cohousing platform, and Lovos Media Manager.",
+    url: "https://rofox.be",
+    gradient: "from-orange-500 via-red-500 to-purple-600",
+    tags: ["Startup", "Next.js", "TypeScript", "Supabase"],
   },
   {
-    category: "Frameworks",
-    items: [
-      { name: "React", icon: SiReact, color: "#61dafb" },
-      { name: "Next.js", icon: SiNextdotjs, color: "#ffffff" },
-      { name: ".NET", icon: SiDotnet, color: "#512bd4" },
-      { name: "Tailwind", icon: SiTailwindcss, color: "#06b6d4" },
-      { name: "Vite", icon: SiVite, color: "#646cff" },
-    ],
-  },
-  {
-    category: "DevOps",
-    items: [
-      { name: "Docker", icon: SiDocker, color: "#2496ed" },
-      { name: "Kubernetes", icon: SiKubernetes, color: "#326ce5" },
-      { name: "Jenkins", icon: SiJenkins, color: "#d24939" },
-      { name: "Git", icon: SiGit, color: "#f05032" },
-      { name: "Bitbucket", icon: SiBitbucket, color: "#0052cc" },
-      { name: "SonarQube", icon: SiSonarqube, color: "#4e9bcd" },
-    ],
-  },
-  {
-    category: "Infrastructure",
-    items: [
-      { name: "Linux", icon: SiLinux, color: "#fcc624" },
-      { name: "Windows", icon: FaWindows, color: "#0078d4" },
-      { name: "macOS", icon: SiApple, color: "#ffffff" },
-      { name: "Unraid", icon: SiUnraid, color: "#f15a2c" },
-    ],
+    name: "Lovos Media",
+    description: "Professional photography business specializing in event and wedding photography. Built a complete media management platform for organizing, sharing, and delivering photos to clients.",
+    url: "https://lovosmedia.com",
+    gradient: "from-amber-500 via-orange-500 to-red-500",
+    tags: ["Photography", "Tauri", "React", "Desktop App"],
   },
 ];
 
@@ -165,39 +131,78 @@ export default function Home() {
 
       {/* Skills Section */}
       <section id="skills" className="py-24 px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-accent text-sm font-medium uppercase tracking-wider mb-2">Expertise</p>
             <h2 className="text-4xl font-bold mb-4">Tech Stack</h2>
-            <p className="text-text-secondary">Technologies I work with daily.</p>
+            <p className="text-text-secondary">Technologies I work with daily. Hover to explore.</p>
           </div>
 
-          <div className="border border-border rounded-xl bg-bg-node/30 backdrop-blur-sm p-6 sm:p-8 space-y-8">
-            {techStack.map((group) => (
-              <div key={group.category}>
-                <p className="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-4">
-                  {group.category}
-                </p>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                  {group.items.map((tech) => {
-                    const Icon = tech.icon;
-                    return (
-                      <div
-                        key={tech.name}
-                        className="group flex flex-col items-center gap-2 p-4 border border-border rounded-lg bg-bg-node/50 transition-all hover:border-accent hover:shadow-[0_0_12px_var(--accent-glow)]"
+          <TechStack3D />
+        </div>
+      </section>
+
+      {/* Projects Section */}
+      <section id="projects" className="py-24 px-6 bg-bg-secondary/50">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-accent text-sm font-medium uppercase tracking-wider mb-2">Side Projects</p>
+            <h2 className="text-4xl font-bold mb-4">What I Build</h2>
+            <p className="text-text-secondary">Personal ventures and projects I actively maintain.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {projects.map((project) => (
+              <a
+                key={project.name}
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative overflow-hidden rounded-2xl border border-border bg-bg-node/30 backdrop-blur-sm transition-all duration-300 hover:border-accent hover:shadow-[0_0_30px_var(--accent-glow)]"
+              >
+                {/* Gradient header */}
+                <div className={`h-2 bg-gradient-to-r ${project.gradient}`} />
+
+                <div className="p-6">
+                  {/* Title with arrow */}
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-bold text-text-primary group-hover:text-accent transition-colors">
+                      {project.name}
+                    </h3>
+                    <svg
+                      className="w-5 h-5 text-text-tertiary group-hover:text-accent group-hover:translate-x-1 group-hover:-translate-y-1 transition-all"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                    </svg>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-text-secondary text-sm leading-relaxed mb-4">
+                    {project.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 text-xs font-medium rounded-full border border-border bg-bg-primary/50 text-text-tertiary"
                       >
-                        <Icon
-                          className="w-8 h-8 text-text-tertiary transition-colors group-hover:text-[var(--icon-color)]"
-                          style={{ "--icon-color": tech.color } as React.CSSProperties}
-                        />
-                        <span className="text-xs font-medium text-text-secondary text-center">
-                          {tech.name}
-                        </span>
-                      </div>
-                    );
-                  })}
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+
+                {/* Hover glow effect */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-5`} />
+                </div>
+              </a>
             ))}
           </div>
         </div>
