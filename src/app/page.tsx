@@ -11,20 +11,7 @@ const ParticleBackground = dynamic(() => import("@/components/ParticleBackground
 });
 
 const projects = [
-  {
-    name: "Rofox",
-    description: "Belgian tech startup I co-founded with Davey Verleg. Building software that matters - from code visualization to housing platforms.",
-    url: "https://rofox.be",
-    gradient: "from-orange-500 via-red-500 to-purple-600",
-    tags: ["Startup", "Next.js", "TypeScript"],
-  },
-  {
-    name: "Convivo",
-    description: "AI-powered cohousing platform matching landlords and tenants based on compatibility. Making shared living easier.",
-    url: "https://convivo.rofox.be",
-    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
-    tags: ["AI", "Matching", "Next.js", "Supabase"],
-  },
+  // Top row: CodeGraph, Lovos Media, Rofox
   {
     name: "CodeGraph",
     description: "Interactive 3D code visualization tool. Transform codebases into explorable graphs with impact analysis and AI queries.",
@@ -40,6 +27,14 @@ const projects = [
     tags: ["Photography", "Events", "Weddings"],
   },
   {
+    name: "Rofox",
+    description: "Belgian tech startup I co-founded with Davey Verleg. Building software that matters - from code visualization to housing platforms.",
+    url: "https://rofox.be",
+    gradient: "from-orange-500 via-red-500 to-purple-600",
+    tags: ["Startup", "Next.js", "TypeScript"],
+  },
+  // Bottom row: Arxis, Memora, Convivo
+  {
     name: "Arxis",
     description: "Desktop media manager for photographers. Organize, sort, and prepare photos across multiple storage locations.",
     url: "https://mediamanager.rofox.be",
@@ -48,10 +43,17 @@ const projects = [
   },
   {
     name: "Memora",
-    description: "Private photo sharing platform. Deliver galleries to clients with ZIP downloads and beautiful presentations.",
+    description: "Client gallery platform for photographers. Deliver galleries with ZIP downloads and beautiful presentations.",
     url: "https://mediamanager.rofox.be",
     gradient: "from-rose-400 via-pink-500 to-fuchsia-500",
     tags: ["Next.js", "Supabase", "S3", "SaaS"],
+  },
+  {
+    name: "Convivo",
+    description: "Cohousing platform. AI-powered matching connecting landlords and tenants based on compatibility.",
+    url: "https://cohousing.rofox.be",
+    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    tags: ["AI", "Matching", "Next.js", "Supabase"],
   },
 ];
 
